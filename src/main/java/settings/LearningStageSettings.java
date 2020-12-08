@@ -1,7 +1,7 @@
 package settings;
 
 import structures.Dataset;
-import structures.NeuralNetwork;
+import network.NeuralNetwork;
 
 public interface LearningStageSettings {
     NeuralNetwork getNeuralNetwork();

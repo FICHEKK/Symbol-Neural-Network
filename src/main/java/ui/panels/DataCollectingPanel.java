@@ -15,7 +15,7 @@ public class DataCollectingPanel extends JPanel implements DataCollectingStageSe
     private static final boolean DEFAULT_SHOW_REPRESENTATIVE_SYMBOL = true;
 
     private static final int MIN_REPRESENTATIVE_POINTS = 2;
-    private static final int DEFAULT_REPRESENTATIVE_POINTS = 10;
+    private static final int DEFAULT_REPRESENTATIVE_POINTS = 30;
     private static final int MAX_REPRESENTATIVE_POINTS = 1000;
 
     private final JTextField symbolIdentifierField = new JTextField(DEFAULT_SYMBOL_IDENTIFIER);

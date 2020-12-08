@@ -1,5 +1,6 @@
-package structures;
+package network;
 
+import network.initializers.WeightInitializer;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -34,7 +35,7 @@ public class NeuralNetwork {
     private int maxIterations;
     private int batchSize;
 
-    public NeuralNetwork(int... layers) {
+    public NeuralNetwork(WeightInitializer initializer, int... layers) {
         this.layers = layers;
         outputs = new RealVector[layers.length];
         errors = new RealVector[layers.length];
@@ -42,33 +43,9 @@ public class NeuralNetwork {
         biases = new RealVector[layers.length - 1];
         deltaWeights = new RealMatrix[layers.length - 1];
         deltaBiases = new RealVector[layers.length - 1];
-        initWeightsToRandomValues();
-        initBiasesToRandomValues();
-    }
 
-    private void initWeightsToRandomValues() {
-        for (int i = 0; i < weights.length; i++) {
-            weights[i] = MatrixUtils.createRealMatrix(layers[i + 1], layers[i]);
-
-            for (int row = 0; row < layers[i + 1]; row++) {
-                for (int col = 0; col < layers[i]; col++) {
-                    weights[i].setEntry(row, col, RANDOM.nextDouble());
-                }
-            }
-        }
-    }
-
-    private void initBiasesToRandomValues() {
-        for (int layer = 1; layer < layers.length; layer++) {
-            int neuronsInLayer = layers[layer];
-            double[] values = new double[neuronsInLayer];
-
-            for (int i = 0; i < values.length; i++) {
-                values[i] = RANDOM.nextDouble();
-            }
-
-            biases[layer - 1] = MatrixUtils.createRealVector(values);
-        }
+        initializer.initializeWeights(weights, layers);
+        initializer.initializeBiases(biases, layers);
     }
 
     public NeuralNetwork withLearningRate(double learningRate) {

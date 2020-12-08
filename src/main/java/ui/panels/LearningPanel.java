@@ -1,9 +1,10 @@
 package ui.panels;
 
+import network.initializers.RandomWeightInitializer;
 import settings.LearningMethod;
 import settings.LearningStageSettings;
 import structures.Dataset;
-import structures.NeuralNetwork;
+import network.NeuralNetwork;
 import util.DatasetLoader;
 
 import javax.swing.*;
@@ -22,7 +23,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
     private static final double DEFAULT_LEARNING_RATE = 0.05;
     private static final double DEFAULT_MIN_ACCEPTABLE_ERROR = 0.01;
     private static final int DEFAULT_MAX_ITERATIONS = 10_000;
-    private static final int DEFAULT_REPRESENTATIVE_POINTS = 10;
+    private static final int DEFAULT_REPRESENTATIVE_POINTS = 30;
     private static final String DEFAULT_SYMBOL_LOAD_DIRECTORY = "symbols";
 
     private final JComboBox<LearningMethod> learningMethodComboBox = new JComboBox<>(new LearningMethod[]{
@@ -122,7 +123,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
                             dataset.y[0].length
                     );
 
-                    neuralNetwork = new NeuralNetwork(layers)
+                    neuralNetwork = new NeuralNetwork(new RandomWeightInitializer(-0.5, 0.5), layers)
                             .withLearningRate(getLearningRate())
                             .withBatchSize(getBatchSize(dataset))
                             .withMaxIterations(getMaxIterations())
