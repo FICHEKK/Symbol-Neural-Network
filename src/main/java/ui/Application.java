@@ -1,5 +1,9 @@
 package ui;
 
+import ui.panels.DataCollectingPanel;
+import ui.panels.LearningPanel;
+import ui.panels.PredictingPanel;
+
 import javax.swing.*;
 
 public class Application extends JFrame {
@@ -7,6 +11,10 @@ public class Application extends JFrame {
     private static final String WINDOW_TITLE = "Symbol Neural Network";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
+
+    private final DataCollectingPanel dataCollectingPanel = new DataCollectingPanel();
+    private final LearningPanel learningPanel = new LearningPanel();
+    private final PredictingPanel predictingPanel = new PredictingPanel(dataCollectingPanel, learningPanel);
 
     private Application() {
         setTitle(WINDOW_TITLE);
@@ -20,9 +28,9 @@ public class Application extends JFrame {
 
     private void initGUI() {
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.add("Data collecting", new DataCollectingPanel());
-        tabbedPane.add("Learning", new LearningPanel());
-        tabbedPane.add("Predicting", new JPanel());
+        tabbedPane.add("Data collecting", dataCollectingPanel);
+        tabbedPane.add("Learning", learningPanel);
+        tabbedPane.add("Predicting", predictingPanel);
         add(tabbedPane);
     }
 

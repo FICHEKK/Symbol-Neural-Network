@@ -11,22 +11,22 @@ public class NeuralNetwork {
     private static final Random RANDOM = new Random();
 
     // Current weights of the network.
-    private RealMatrix[] weights;
+    private final RealMatrix[] weights;
 
     // Storage of weight changes that need to be applied.
-    private RealMatrix[] deltaWeights;
+    private final RealMatrix[] deltaWeights;
 
     // Biases of all hidden layer and output neurons.
-    private RealVector[] biases;
+    private final RealVector[] biases;
 
     // Storage of bias changes that need to be applied.
-    private RealVector[] deltaBiases;
+    private final RealVector[] deltaBiases;
 
     // Storage of all the output values of the current iteration.
-    private RealVector[] outputs;
+    private final RealVector[] outputs;
 
     // Storage of all the neuron errors of the current iteration.
-    private RealVector[] errors;
+    private final RealVector[] errors;
 
     private final int[] layers;
     private double learningRate;
@@ -38,13 +38,15 @@ public class NeuralNetwork {
         this.layers = layers;
         outputs = new RealVector[layers.length];
         errors = new RealVector[layers.length];
+        weights = new RealMatrix[layers.length - 1];
+        biases = new RealVector[layers.length - 1];
+        deltaWeights = new RealMatrix[layers.length - 1];
+        deltaBiases = new RealVector[layers.length - 1];
         initWeightsToRandomValues();
         initBiasesToRandomValues();
     }
 
     private void initWeightsToRandomValues() {
-        weights = new RealMatrix[layers.length - 1];
-
         for (int i = 0; i < weights.length; i++) {
             weights[i] = MatrixUtils.createRealMatrix(layers[i + 1], layers[i]);
 
@@ -57,8 +59,6 @@ public class NeuralNetwork {
     }
 
     private void initBiasesToRandomValues() {
-        biases = new RealVector[layers.length - 1];
-
         for (int layer = 1; layer < layers.length; layer++) {
             int neuronsInLayer = layers[layer];
             double[] values = new double[neuronsInLayer];
@@ -92,19 +92,24 @@ public class NeuralNetwork {
     }
 
     public NeuralNetwork fit(double[][] X, double[][] y) {
+        int sampleIndex = 0;
+
         for (int i = 1; i <= maxIterations; i++) {
             resetDeltaWeightsAndBiases();
 
-            for (int j = 0; j < X.length; j++) {
-                calculateOutputLayerError(y[j], predict(X[j]));
+            for (int j = 0; j < batchSize; j++) {
+                calculateOutputLayerError(y[sampleIndex], predict(X[sampleIndex]));
 
                 for (int layer = errors.length - 2; layer >= 1; layer--) {
                     calculateHiddenLayerError(layer);
                 }
 
                 for (int layer = 0; layer < layers.length - 1; layer++) {
-                    calculateDeltaWeightsAndBiases(layer);
+                    calculateDeltaWeights(layer);
+                    calculateDeltaBiases(layer);
                 }
+
+                sampleIndex = (sampleIndex + 1) % X.length;
             }
 
             updateWeightsAndBiases();
@@ -142,7 +147,7 @@ public class NeuralNetwork {
         }
     }
 
-    private void calculateDeltaWeightsAndBiases(int layer) {
+    private void calculateDeltaWeights(int layer) {
         var rows = weights[layer].getRowDimension();
         var cols = weights[layer].getColumnDimension();
         var dW = deltaWeights[layer];
@@ -154,11 +159,14 @@ public class NeuralNetwork {
                 dW.setEntry(row, col, dW.getEntry(row, col) + learningRate * neuronOutput * neuronError);
             }
         }
+    }
 
+    private void calculateDeltaBiases(int layer) {
+        int neuronsInLayer = layers[layer + 1];
         var dB = deltaBiases[layer];
 
-        for (int row = 0; row < rows; row++) {
-            dB.setEntry(row, dB.getEntry(row) + learningRate * errors[layer + 1].getEntry(row));
+        for (int i = 0; i < neuronsInLayer; i++) {
+            dB.setEntry(i, dB.getEntry(i) + learningRate * errors[layer + 1].getEntry(i));
         }
     }
 
@@ -218,9 +226,6 @@ public class NeuralNetwork {
     }
 
     private void resetDeltaWeightsAndBiases() {
-        deltaWeights = new RealMatrix[layers.length - 1];
-        deltaBiases = new RealVector[layers.length - 1];
-
         for (int i = 0; i < deltaWeights.length; i++) {
             deltaWeights[i] = MatrixUtils.createRealMatrix(layers[i + 1], layers[i]);
         }

@@ -1,10 +1,9 @@
 package settings;
 
+import structures.Dataset;
+import structures.NeuralNetwork;
+
 public interface LearningStageSettings {
-    int getBatchSize();
-    double getLearningRate();
-    double getMinAcceptableError();
-    int getMaxIterations();
-    int getNumberOfRepresentativePoints();
-    String getSymbolLoadDirectory();
+    NeuralNetwork getNeuralNetwork();
+    Dataset getDataset();
 }

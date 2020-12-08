@@ -1,7 +1,8 @@
-package ui;
+package ui.panels;
 
 import settings.LearningMethod;
 import settings.LearningStageSettings;
+import structures.Dataset;
 import structures.NeuralNetwork;
 import util.DatasetLoader;
 
@@ -41,6 +42,9 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
 
     private static final int PADDING = 10;
     private static final Font ARIAL = new Font("Arial", Font.PLAIN, 16);
+
+    private NeuralNetwork neuralNetwork;
+    private Dataset dataset;
 
     public LearningPanel() {
         setLayout(new BorderLayout());
@@ -108,7 +112,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    var dataset = DatasetLoader.loadDataset(
+                    dataset = DatasetLoader.loadDataset(
                             getSymbolLoadDirectory(),
                             getNumberOfRepresentativePoints()
                     );
@@ -118,14 +122,12 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
                             dataset.y[0].length
                     );
 
-                    var neuralNetwork = new NeuralNetwork(layers)
+                    neuralNetwork = new NeuralNetwork(layers)
                             .withLearningRate(getLearningRate())
-                            .withBatchSize(getBatchSize())
+                            .withBatchSize(getBatchSize(dataset))
                             .withMaxIterations(getMaxIterations())
                             .withMinAcceptableError(getMinAcceptableError())
                             .fit(dataset.X, dataset.y);
-
-                    neuralNetwork.fit(dataset.X, dataset.y);
 
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -153,41 +155,49 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
     }
 
     @Override
-    public int getBatchSize() {
+    public NeuralNetwork getNeuralNetwork() {
+        return neuralNetwork;
+    }
+
+    @Override
+    public Dataset getDataset() {
+        return dataset;
+    }
+
+    private int getBatchSize(Dataset dataset) {
         var learningMethod = (LearningMethod) learningMethodComboBox.getSelectedItem();
         if (learningMethod == null)
             throw new IllegalStateException("Learning method cannot be null.");
 
         switch (learningMethod) {
-            case STOCHASTIC: return 1;
-            case MINI_BATCH: return Integer.parseInt(miniBatchSizeField.getText());
-            case BATCH: return Integer.MAX_VALUE;
-            default: throw new IllegalStateException("Invalid learning method '" + learningMethod + "'.");
+            case STOCHASTIC:
+                return 1;
+            case MINI_BATCH:
+                return Integer.parseInt(miniBatchSizeField.getText());
+            case BATCH:
+                return dataset.X.length;
+            default:
+                throw new IllegalStateException("Invalid learning method '" + learningMethod + "'.");
         }
     }
 
-    @Override
-    public double getLearningRate() {
+    private double getLearningRate() {
         return Double.parseDouble(learningRateField.getText());
     }
 
-    @Override
-    public double getMinAcceptableError() {
+    private double getMinAcceptableError() {
         return Double.parseDouble(minAcceptableErrorField.getText());
     }
 
-    @Override
-    public int getMaxIterations() {
+    private int getMaxIterations() {
         return Integer.parseInt(maxIterationsField.getText());
     }
 
-    @Override
-    public int getNumberOfRepresentativePoints() {
+    private int getNumberOfRepresentativePoints() {
         return Integer.parseInt(numberOfRepresentativePointsField.getText());
     }
 
-    @Override
-    public String getSymbolLoadDirectory() {
+    private String getSymbolLoadDirectory() {
         return symbolLoadDirectoryField.getText();
     }
 }

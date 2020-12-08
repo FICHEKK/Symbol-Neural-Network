@@ -1,6 +1,8 @@
-package ui;
+package ui.panels;
 
 import settings.DataCollectingStageSettings;
+import ui.SymbolCanvas;
+import ui.SymbolFileWriter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
