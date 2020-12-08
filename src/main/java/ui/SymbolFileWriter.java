@@ -1,6 +1,7 @@
 package ui;
 
 import settings.DataCollectingStageSettings;
+import structures.Point;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,7 +31,12 @@ public class SymbolFileWriter implements SymbolCanvasListener {
         try {
             Files.createDirectories(directoryPath);
             Files.createFile(filePath);
-            Files.write(filePath, points.stream().map(point -> point.x + " " + point.y).collect(Collectors.toList()));
+            Files.write(
+                    filePath,
+                    points.stream()
+                            .map(point -> point.x + System.lineSeparator() + point.y)
+                            .collect(Collectors.toList())
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }

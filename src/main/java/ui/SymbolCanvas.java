@@ -1,6 +1,7 @@
 package ui;
 
 import settings.DataCollectingStageSettings;
+import structures.Point;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,8 +22,8 @@ public class SymbolCanvas extends JComponent {
 
     private final DataCollectingStageSettings settings;
     private final List<SymbolCanvasListener> listeners = new ArrayList<>();
-    private List<Point> points = new ArrayList<>();
-    private List<Point> representativePoints;
+    private List<structures.Point> points = new ArrayList<>();
+    private List<structures.Point> representativePoints;
 
     public SymbolCanvas(DataCollectingStageSettings settings) {
         this.settings = settings;
@@ -41,19 +42,19 @@ public class SymbolCanvas extends JComponent {
                 }
 
                 var numberOfRepresentativePoints = settings.getNumberOfRepresentativePoints();
-                representativePoints = Point.getRepresentativePoints(
+                representativePoints = structures.Point.getRepresentativePoints(
                         points,
                         numberOfRepresentativePoints
                 );
 
-                var centroid = Point.calculateCentroid(points);
+                var centroid = structures.Point.calculateCentroid(points);
                 points = points.stream().map(point -> point.minus(centroid)).collect(Collectors.toList());
 
-                var maximumAbsoluteXY = Point.findMaximumAbsoluteXY(points);
+                var maximumAbsoluteXY = structures.Point.findMaximumAbsoluteXY(points);
                 var scalar = 1 / Math.max(maximumAbsoluteXY.x, maximumAbsoluteXY.y);
                 points = points.stream().map(point -> point.scale(scalar)).collect(Collectors.toList());
 
-                var normalizedRepresentativePoints = Point.getRepresentativePoints(
+                var normalizedRepresentativePoints = structures.Point.getRepresentativePoints(
                         points,
                         numberOfRepresentativePoints
                 );
@@ -67,7 +68,7 @@ public class SymbolCanvas extends JComponent {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                points.add(new Point(e.getX(), e.getY()));
+                points.add(new structures.Point(e.getX(), e.getY()));
                 repaint();
             }
         });
@@ -92,7 +93,7 @@ public class SymbolCanvas extends JComponent {
             drawCurveFromPoints((Graphics2D) g, representativePoints, REPRESENTATIVE_SYMBOL_COLOR, true);
     }
 
-    private static void drawCurveFromPoints(Graphics2D g, List<Point> points, Color color, boolean drawDotForEachPoint) {
+    private static void drawCurveFromPoints(Graphics2D g, List<structures.Point> points, Color color, boolean drawDotForEachPoint) {
         if (points == null || points.isEmpty()) return;
 
         g.setStroke(new BasicStroke(SYMBOL_STROKE_WIDTH));
