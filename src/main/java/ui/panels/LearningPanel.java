@@ -1,5 +1,6 @@
 package ui.panels;
 
+import network.activation.Sigmoid;
 import network.initializers.RandomWeightInitializer;
 import settings.LearningMethod;
 import settings.LearningStageSettings;
@@ -76,7 +77,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
         panel.add(miniBatchSizeLabel);
         panel.add(miniBatchSizeField);
 
-        panel.add(createLabel("Hidden layers definition (grammar: 'L1xL2x...xLn'):"));
+        panel.add(createLabel("Hidden layers definition (L1 x L2 x ... x Ln):"));
         panel.add(hiddenLayersDefinitionField);
 
         panel.add(createLabel("Learning rate:"));
@@ -123,7 +124,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
                             dataset.y[0].length
                     );
 
-                    neuralNetwork = new NeuralNetwork(new RandomWeightInitializer(-0.5, 0.5), layers)
+                    neuralNetwork = new NeuralNetwork(new RandomWeightInitializer(-0.5, 0.5), Sigmoid.getInstance(), layers)
                             .withLearningRate(getLearningRate())
                             .withBatchSize(getBatchSize(dataset))
                             .withMaxIterations(getMaxIterations())

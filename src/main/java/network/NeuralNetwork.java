@@ -1,15 +1,12 @@
 package network;
 
+import network.activation.ActivationFunction;
 import network.initializers.WeightInitializer;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
-import java.util.Random;
-
 public class NeuralNetwork {
-
-    private static final Random RANDOM = new Random();
 
     // Current weights of the network.
     private final RealMatrix[] weights;
@@ -29,14 +26,18 @@ public class NeuralNetwork {
     // Storage of all the neuron errors of the current iteration.
     private final RealVector[] errors;
 
+    private final ActivationFunction function;
+
     private final int[] layers;
     private double learningRate;
     private double minAcceptableError;
     private int maxIterations;
     private int batchSize;
 
-    public NeuralNetwork(WeightInitializer initializer, int... layers) {
+    public NeuralNetwork(WeightInitializer initializer, ActivationFunction function, int... layers) {
+        this.function = function;
         this.layers = layers;
+
         outputs = new RealVector[layers.length];
         errors = new RealVector[layers.length];
         weights = new RealMatrix[layers.length - 1];
@@ -94,6 +95,18 @@ public class NeuralNetwork {
         }
 
         return this;
+    }
+
+    public double[] predict(double[] sample) {
+        var input = MatrixUtils.createRealVector(sample);
+        outputs[0] = input;
+
+        for (int layer = 0; layer < layers.length - 1; layer++) {
+            input = function.apply(weights[layer].operate(input).add(biases[layer]));
+            outputs[layer + 1] = input;
+        }
+
+        return input.toArray();
     }
 
     private void calculateNetworkError(double[][] X, double[][] y) {
@@ -174,32 +187,6 @@ public class NeuralNetwork {
         }
 
         errors[errors.length - 1] = MatrixUtils.createRealVector(neuronErrors);
-    }
-
-    public double[] predict(double[] sample) {
-        var input = MatrixUtils.createRealVector(sample);
-        outputs[0] = input;
-
-        for (int layer = 0; layer < layers.length - 1; layer++) {
-            input = sigmoid(weights[layer].operate(input).add(biases[layer]));
-            outputs[layer + 1] = input;
-        }
-
-        return input.toArray();
-    }
-
-    private static RealVector sigmoid(RealVector vector) {
-        var size = vector.getDimension();
-
-        for (int i = 0; i < size; i++) {
-            vector.setEntry(i, sigmoid(vector.getEntry(i)));
-        }
-
-        return vector;
-    }
-
-    private static double sigmoid(double x) {
-        return 1 / (1 + Math.exp(-x));
     }
 
     private void resetDeltaWeightsAndBiases() {
