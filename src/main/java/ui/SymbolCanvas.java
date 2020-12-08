@@ -1,3 +1,5 @@
+package ui;
+
 import settings.DataCollectingStageSettings;
 
 import javax.swing.*;
@@ -33,6 +35,11 @@ public class SymbolCanvas extends JComponent {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (points.isEmpty()) {
+                    repaint();
+                    return;
+                }
+
                 var numberOfRepresentativePoints = settings.getNumberOfRepresentativePoints();
                 representativePoints = Point.getRepresentativePoints(
                         points,

@@ -1,3 +1,5 @@
+package ui;
+
 import settings.DataCollectingStageSettings;
 
 import java.io.IOException;

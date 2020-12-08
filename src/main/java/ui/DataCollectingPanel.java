@@ -1,14 +1,12 @@
+package ui;
+
 import settings.DataCollectingStageSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class Application extends JFrame implements DataCollectingStageSettings {
-
-    private static final String WINDOW_TITLE = "Symbol Neural Network";
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 600;
+public class DataCollectingPanel extends JPanel implements DataCollectingStageSettings {
 
     private static final String DEFAULT_SYMBOL_IDENTIFIER = "alpha";
     private static final String DEFAULT_SYMBOL_SAVE_DIRECTORY = "symbols";
@@ -18,22 +16,43 @@ public class Application extends JFrame implements DataCollectingStageSettings {
     private static final int DEFAULT_REPRESENTATIVE_POINTS = 10;
     private static final int MAX_REPRESENTATIVE_POINTS = 1000;
 
-    private final SymbolCanvas symbolCanvas = new SymbolCanvas(this);
-    private final SymbolFileWriter symbolFileWriter = new SymbolFileWriter(this);
-
     private final JTextField symbolIdentifierField = new JTextField(DEFAULT_SYMBOL_IDENTIFIER);
     private final JTextField symbolSaveDirectoryField = new JTextField(DEFAULT_SYMBOL_SAVE_DIRECTORY);
     private final JTextField numberOfRepresentativePointsField = new JTextField(String.valueOf(DEFAULT_REPRESENTATIVE_POINTS));
     private final JCheckBox showRepresentativeSymbolCheckbox = new JCheckBox("", DEFAULT_SHOW_REPRESENTATIVE_SYMBOL);
 
-    private Application() {
-        setTitle(WINDOW_TITLE);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        setLocationRelativeTo(null);
-        setVisible(true);
+    private static final int PADDING = 10;
 
-        initGUI();
+    public DataCollectingPanel() {
+        setLayout(new BorderLayout());
+        initSymbolCanvas();
+        initSettingsPanel();
+    }
+
+    private void initSymbolCanvas() {
+        SymbolCanvas symbolCanvas = new SymbolCanvas(this);
+        SymbolFileWriter symbolFileWriter = new SymbolFileWriter(this);
+        symbolCanvas.addListener(symbolFileWriter);
+        add(symbolCanvas, BorderLayout.CENTER);
+    }
+
+    private void initSettingsPanel() {
+        JPanel panel = new JPanel(new GridLayout(0, 2));
+        panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
+
+        panel.add(new JLabel("Symbol identifier:"));
+        panel.add(symbolIdentifierField);
+
+        panel.add(new JLabel("Symbol save directory:"));
+        panel.add(symbolSaveDirectoryField);
+
+        panel.add(new JLabel("Number of representative points:"));
+        panel.add(numberOfRepresentativePointsField);
+
+        panel.add(new JLabel("Show representative symbol:"));
+        panel.add(showRepresentativeSymbolCheckbox);
+
+        add(panel, BorderLayout.SOUTH);
     }
 
     @Override
@@ -46,6 +65,7 @@ public class Application extends JFrame implements DataCollectingStageSettings {
         return symbolSaveDirectoryField.getText();
     }
 
+    @Override
     public int getNumberOfRepresentativePoints() {
         try {
             int numberOfPoints = Integer.parseInt(numberOfRepresentativePointsField.getText());
@@ -70,40 +90,5 @@ public class Application extends JFrame implements DataCollectingStageSettings {
     @Override
     public boolean showRepresentativeSymbol() {
         return showRepresentativeSymbolCheckbox.isSelected();
-    }
-
-    private void initGUI() {
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.add("Data collecting", createDataCollectingPanel());
-        tabbedPane.add("Learning", new JPanel());
-        tabbedPane.add("Predicting", new JPanel());
-        add(tabbedPane);
-    }
-
-    private JPanel createDataCollectingPanel() {
-        var dataCollectingPanel = new JPanel(new BorderLayout());
-
-        dataCollectingPanel.add(symbolCanvas);
-        symbolCanvas.addListener(symbolFileWriter);
-
-        JPanel panel = new JPanel(new GridLayout(0, 2));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        panel.add(new JLabel("Symbol identifier:"));
-        panel.add(symbolIdentifierField);
-        panel.add(new JLabel("Symbol save directory:"));
-        panel.add(symbolSaveDirectoryField);
-        panel.add(new JLabel("Number of representative points:"));
-        panel.add(numberOfRepresentativePointsField);
-        panel.add(new JLabel("Show representative symbol:"));
-        panel.add(showRepresentativeSymbolCheckbox);
-
-        dataCollectingPanel.add(panel, BorderLayout.SOUTH);
-
-        return dataCollectingPanel;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Application::new);
     }
 }
