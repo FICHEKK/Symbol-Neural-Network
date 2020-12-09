@@ -16,6 +16,7 @@ public class SymbolCanvas extends JComponent {
     private static final float REPRESENTATIVE_POINT_STROKE_WIDTH = 2;
     private static final double REPRESENTATIVE_POINT_RADIUS = 4;
 
+    private static final Color BACKGROUND_COLOR = new Color(24, 24, 24, 255);
     private static final Color SYMBOL_COLOR = Color.WHITE;
     private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
     private static final Color REPRESENTATIVE_POINT_COLOR = Color.GREEN;
@@ -84,7 +85,7 @@ public class SymbolCanvas extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-        g.setColor(Color.BLACK);
+        g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         drawCurveFromPoints((Graphics2D) g, points, SYMBOL_COLOR, false);

@@ -8,22 +8,11 @@ import org.apache.commons.math3.linear.RealVector;
 
 public class NeuralNetwork {
 
-    // Current weights of the network.
     private final RealMatrix[] weights;
-
-    // Storage of weight changes that need to be applied.
     private final RealMatrix[] deltaWeights;
-
-    // Biases of all hidden layer and output neurons.
     private final RealVector[] biases;
-
-    // Storage of bias changes that need to be applied.
     private final RealVector[] deltaBiases;
-
-    // Storage of all the output values of the current iteration.
     private final RealVector[] outputs;
-
-    // Storage of all the neuron errors of the current iteration.
     private final RealVector[] errors;
 
     private final ActivationFunction function;
