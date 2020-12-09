@@ -3,6 +3,7 @@ package ui.views;
 import network.NeuralNetwork;
 import network.NeuralNetworkListener;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,7 @@ import java.awt.*;
 public class NeuralNetworkView extends JComponent implements NeuralNetworkListener {
 
     private static final Color BACKGROUND_COLOR = Color.BLACK;
-    private static final Color NEURON_COLOR = Color.WHITE;
+    private static final Color INPUT_NEURON_COLOR = Color.WHITE;
 
     private static final float POSITIVE_WEIGHT_R = 0;
     private static final float POSITIVE_WEIGHT_G = 0.8f;
@@ -20,8 +21,8 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
     private static final float NEGATIVE_WEIGHT_G = 0;
     private static final float NEGATIVE_WEIGHT_B = 0;
 
-    private static final int NEURON_RADIUS = 3;
-    private static final int NEURON_DIAMETER = 2 * NEURON_RADIUS;
+    private static final int INPUT_NEURON_RADIUS = 3;
+    private static final int BIAS_NEURON_RADIUS = 5;
     private static final int WIDTH = 800;
     private static final int PADDING = 10;
 
@@ -142,22 +143,75 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
     }
 
     private void paintNeurons(Graphics g) {
-        g.setColor(NEURON_COLOR);
-
         int[] layers = neuralNetwork.getLayers();
         int width = getWidthWithPadding();
         int height = getHeight();
         int neuronLayerSpacingHorizontal = width / (layers.length - 1);
 
-        for (int i = 0; i < layers.length; i++) {
+        g.setColor(INPUT_NEURON_COLOR);
+        for (int i = 1; i <= layers[0]; i++) {
+            int x = PADDING;
+            int neuronLayerSpacingVertical = Math.round((float) height / (layers[0] + 1));
+            int y = neuronLayerSpacingVertical * i;
+
+            final int diameter = 2 * INPUT_NEURON_RADIUS;
+            g.drawOval(x - INPUT_NEURON_RADIUS, y - INPUT_NEURON_RADIUS, diameter, diameter);
+        }
+
+        var biases = neuralNetwork.getBiases();
+        var max = findAbsoluteMax(biases);
+
+        for (int i = 1; i < layers.length; i++) {
             int x = neuronLayerSpacingHorizontal * i + PADDING;
             int neuronLayerSpacingVertical = Math.round((float) height / (layers[i] + 1));
 
-            for (int j = 1; j <= layers[i]; j++) {
-                int y = neuronLayerSpacingVertical * j;
-                g.drawOval(x - NEURON_RADIUS, y - NEURON_RADIUS, NEURON_DIAMETER, NEURON_DIAMETER);
+            for (int j = 0; j < layers[i]; j++) {
+                int y = neuronLayerSpacingVertical * (j + 1);
+                var bias = biases[i - 1].getEntry(j) / max;
+                if (!shouldDrawWeight(bias)) continue;
+
+                if (bias < 0) {
+                    g.setColor(new Color(NEGATIVE_WEIGHT_R, NEGATIVE_WEIGHT_G, NEGATIVE_WEIGHT_B, (float) Math.abs(bias)));
+                }
+                else {
+                    g.setColor(new Color(POSITIVE_WEIGHT_R, POSITIVE_WEIGHT_G, POSITIVE_WEIGHT_B, (float) Math.abs(bias)));
+                }
+
+                final int diameter = 2 * BIAS_NEURON_RADIUS;
+                g.fillOval(x - BIAS_NEURON_RADIUS, y - BIAS_NEURON_RADIUS, diameter, diameter);
+                g.setColor(INPUT_NEURON_COLOR);
+                g.drawOval(x - BIAS_NEURON_RADIUS, y - BIAS_NEURON_RADIUS, diameter, diameter);
             }
         }
+    }
+
+    private static double findAbsoluteMax(RealVector[] vectors) {
+        var max = Double.NEGATIVE_INFINITY;
+
+        for (RealVector vector : vectors) {
+            var vectorMax = findAbsoluteMax(vector);
+
+            if (vectorMax > max) {
+                max = vectorMax;
+            }
+        }
+
+        return max;
+    }
+
+    private static double findAbsoluteMax(RealVector vector) {
+        var max = Double.NEGATIVE_INFINITY;
+        var size = vector.getDimension();
+
+        for (int i = 0; i < size; i++) {
+            var entry = Math.abs(vector.getEntry(i));
+
+            if (entry > max) {
+                max = entry;
+            }
+        }
+
+        return max;
     }
 
     private int getWidthWithPadding() {
