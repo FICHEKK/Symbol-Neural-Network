@@ -6,6 +6,7 @@ import settings.LearningMethod;
 import settings.LearningStageSettings;
 import structures.Dataset;
 import network.NeuralNetwork;
+import ui.views.NeuralNetworkView;
 import util.DatasetLoader;
 
 import javax.swing.*;
@@ -35,6 +36,12 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
     private final JLabel miniBatchSizeLabel = createLabel("Mini batch size:");
     private final JTextField miniBatchSizeField = new JTextField(String.valueOf(DEFAULT_MINI_BATCH_SIZE));
 
+    private final JComboBox<NeuralNetworkView.DrawingMode> drawingModeComboBox = new JComboBox<>(new NeuralNetworkView.DrawingMode[]{
+            NeuralNetworkView.DrawingMode.DRAW_ALL_WEIGHTS,
+            NeuralNetworkView.DrawingMode.DRAW_POSITIVE_WEIGHTS_ONLY,
+            NeuralNetworkView.DrawingMode.DRAW_NEGATIVE_WEIGHTS_ONLY
+    });
+
     private final JTextField hiddenLayersDefinitionField = new JTextField(DEFAULT_HIDDEN_LAYERS_DEFINITION);
     private final JTextField learningRateField = new JTextField(String.valueOf(DEFAULT_LEARNING_RATE));
     private final JTextField minAcceptableErrorField = new JTextField(String.valueOf(DEFAULT_MIN_ACCEPTABLE_ERROR));
@@ -42,7 +49,9 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
     private final JTextField numberOfRepresentativePointsField = new JTextField(String.valueOf(DEFAULT_REPRESENTATIVE_POINTS));
     private final JTextField symbolLoadDirectoryField = new JTextField(DEFAULT_SYMBOL_LOAD_DIRECTORY);
 
-    private static final int PADDING = 10;
+    private final NeuralNetworkView neuralNetworkView = new NeuralNetworkView();
+
+    private static final int PADDING = 4;
     private static final Font ARIAL = new Font("Arial", Font.PLAIN, 16);
 
     private NeuralNetwork neuralNetwork;
@@ -50,12 +59,16 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
 
     public LearningPanel() {
         setLayout(new BorderLayout());
-        initSettingsPanel();
-        initStartLearningPanel();
+
+        var panel = new JPanel(new BorderLayout());
+        panel.add(createSettingsPanel(), BorderLayout.CENTER);
+        panel.add(neuralNetworkView, BorderLayout.EAST);
+
+        add(panel, BorderLayout.CENTER);
     }
 
-    private void initSettingsPanel() {
-        var gridLayout = new GridLayout(0, 2);
+    private JPanel createSettingsPanel() {
+        var gridLayout = new GridLayout(0, 1);
         gridLayout.setVgap(2 * PADDING);
 
         JPanel panel = new JPanel(gridLayout);
@@ -83,10 +96,10 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
         panel.add(createLabel("Learning rate:"));
         panel.add(learningRateField);
 
-        panel.add(createLabel("Min acceptable error:"));
+        panel.add(createLabel("Minimum acceptable error:"));
         panel.add(minAcceptableErrorField);
 
-        panel.add(createLabel("Max iterations:"));
+        panel.add(createLabel("Maximum number of iterations:"));
         panel.add(maxIterationsField);
 
         panel.add(createLabel("Number of representative points:"));
@@ -95,7 +108,20 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
         panel.add(createLabel("Symbol load directory:"));
         panel.add(symbolLoadDirectoryField);
 
-        add(panel, BorderLayout.CENTER);
+        panel.add(createLabel("Drawing mode:"));
+        panel.add(drawingModeComboBox);
+
+        drawingModeComboBox.addItemListener(e -> {
+            var drawingMode = (NeuralNetworkView.DrawingMode) e.getItem();
+
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                neuralNetworkView.setDrawingMode(drawingMode);
+            }
+        });
+
+        panel.add(createStartLearningButton());
+
+        return panel;
     }
 
     private JLabel createLabel(String text) {
@@ -104,10 +130,7 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
         return label;
     }
 
-    private void initStartLearningPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
-
+    private JButton createStartLearningButton() {
         var learnButton = new JButton("Learn neural network");
 
         learnButton.addActionListener(new AbstractAction() {
@@ -128,8 +151,10 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
                             .withLearningRate(getLearningRate())
                             .withBatchSize(getBatchSize(dataset))
                             .withMaxIterations(getMaxIterations())
-                            .withMinAcceptableError(getMinAcceptableError())
-                            .fit(dataset.X, dataset.y);
+                            .withMinAcceptableError(getMinAcceptableError());
+
+                    neuralNetworkView.setNeuralNetwork(neuralNetwork);
+                    neuralNetwork.fit(dataset.X, dataset.y);
 
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -137,13 +162,12 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
             }
         });
 
-        panel.add(learnButton);
-        add(panel, BorderLayout.SOUTH);
+        return learnButton;
     }
 
     private int[] calculateNetworkLayers(int inputNeurons, int outputNeurons) {
         var definition = hiddenLayersDefinitionField.getText();
-        var hiddenLayers = definition.split(HIDDEN_LAYERS_DEFINITION_SEPARATOR);
+        var hiddenLayers = definition.replaceAll("\\s+", "").split(HIDDEN_LAYERS_DEFINITION_SEPARATOR);
 
         int[] layers = new int[hiddenLayers.length + 2];
         layers[0] = inputNeurons;

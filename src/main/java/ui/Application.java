@@ -9,8 +9,8 @@ import javax.swing.*;
 public class Application extends JFrame {
 
     private static final String WINDOW_TITLE = "Symbol Neural Network";
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 600;
+    private static final int WINDOW_WIDTH = 1200;
+    private static final int WINDOW_HEIGHT = 800;
 
     private final DataCollectingPanel dataCollectingPanel = new DataCollectingPanel();
     private final LearningPanel learningPanel = new LearningPanel();

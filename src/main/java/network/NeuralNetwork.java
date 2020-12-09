@@ -6,6 +6,9 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NeuralNetwork {
 
     private final RealMatrix[] weights;
@@ -16,12 +19,14 @@ public class NeuralNetwork {
     private final RealVector[] errors;
 
     private final ActivationFunction function;
-
     private final int[] layers;
+
     private double learningRate;
     private double minAcceptableError;
     private int maxIterations;
     private int batchSize;
+
+    private final List<NeuralNetworkListener> listeners = new ArrayList<>();
 
     public NeuralNetwork(WeightInitializer initializer, ActivationFunction function, int... layers) {
         this.function = function;
@@ -58,10 +63,18 @@ public class NeuralNetwork {
         return this;
     }
 
-    public NeuralNetwork fit(double[][] X, double[][] y) {
+    public void addListener(NeuralNetworkListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(NeuralNetworkListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void fit(double[][] X, double[][] y) {
         int sampleIndex = 0;
 
-        for (int i = 1; i <= maxIterations; i++) {
+        for (int iteration = 1; iteration <= maxIterations; iteration++) {
             resetDeltaWeightsAndBiases();
 
             for (int j = 0; j < batchSize; j++) {
@@ -80,10 +93,16 @@ public class NeuralNetwork {
             }
 
             updateWeightsAndBiases();
-            calculateNetworkError(X, y);
+            var error = calculateNetworkError(X, y);
+            System.out.println(iteration + "#: Network error: " + error);
+
+            if (error <= minAcceptableError) {
+                System.out.println("Finished learning - error within acceptable range!");
+                break;
+            }
         }
 
-        return this;
+        listeners.forEach(NeuralNetworkListener::onFitFinish);
     }
 
     public double[] predict(double[] sample) {
@@ -98,14 +117,15 @@ public class NeuralNetwork {
         return input.toArray();
     }
 
-    private void calculateNetworkError(double[][] X, double[][] y) {
+    private double calculateNetworkError(double[][] X, double[][] y) {
         var error = 0.0;
+        var N = X.length;
 
-        for (int i = 0; i < X.length; i++) {
+        for (int i = 0; i < N; i++) {
             error += calculateSampleError(y[i], predict(X[i]));
         }
 
-        System.out.println("Network error: " + error);
+        return 1.0 / (2 * N) * error;
     }
 
     private double calculateSampleError(double[] y, double[] prediction) {
@@ -187,5 +207,17 @@ public class NeuralNetwork {
             int neuronsInLayer = layers[layer];
             deltaBiases[layer - 1] = MatrixUtils.createRealVector(new double[neuronsInLayer]);
         }
+    }
+
+    public RealMatrix[] getWeights() {
+        return weights;
+    }
+
+    public RealVector[] getBiases() {
+        return biases;
+    }
+
+    public int[] getLayers() {
+        return layers;
     }
 }

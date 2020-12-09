@@ -3,7 +3,7 @@ package ui.panels;
 import settings.DataCollectingStageSettings;
 import settings.LearningStageSettings;
 import structures.Point;
-import ui.Histogram;
+import ui.views.HistogramView;
 import ui.SymbolCanvas;
 
 import javax.swing.*;
@@ -17,7 +17,7 @@ public class PredictingPanel extends JPanel {
     private static final Font ARIAL = new Font("Arial", Font.BOLD, 16);
     private static final int PADDING = 20;
     private final JLabel predictionLabel = new JLabel("I will write my prediction here!");
-    private final Histogram histogram = new Histogram();
+    private final HistogramView histogram = new HistogramView();
 
     public PredictingPanel(DataCollectingStageSettings dataCollectingSettings, LearningStageSettings learningSettings) {
         setLayout(new BorderLayout());

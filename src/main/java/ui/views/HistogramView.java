@@ -1,9 +1,9 @@
-package ui;
+package ui.views;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class Histogram extends JComponent {
+public class HistogramView extends JComponent {
 
     private static final int HEIGHT = 64;
     private static final Color BAR_COLOR = new Color(184, 76, 0, 255);
