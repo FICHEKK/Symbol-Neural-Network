@@ -16,13 +16,9 @@ public class DatasetLoader {
                 String.valueOf(numberOfRepresentativePoints)
         );
 
-        if (Files.notExists(loadDirPath)) {
-            throw new IOException("Error while loading symbols - load directory does not exist.");
-        }
-        else {
-            System.out.println("Loading symbols from '" + loadDirPath + "'...");
-        }
+        if (Files.notExists(loadDirPath)) return null;
 
+        System.out.println("Loading symbols from '" + loadDirPath + "'...");
         return convertFilesToDataset(loadDirPath);
     }
 

@@ -1,13 +1,16 @@
 package ui.panels;
 
+import network.NeuralNetwork;
 import network.activation.Sigmoid;
 import network.initializers.RandomWeightInitializer;
 import settings.LearningMethod;
-import settings.LearningStageSettings;
+import settings.LearningSettings;
+import settings.Settings;
 import structures.Dataset;
-import network.NeuralNetwork;
 import ui.views.NeuralNetworkView;
 import util.DatasetLoader;
+import util.SimpleDocumentListener;
+import util.UserInputValidator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,49 +18,50 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
+import java.util.function.BiFunction;
 
-public class LearningPanel extends JPanel implements LearningStageSettings {
+import static settings.Settings.*;
 
-    private static final LearningMethod DEFAULT_LEARNING_METHOD = LearningMethod.MINI_BATCH;
-    private static final int DEFAULT_MINI_BATCH_SIZE = 5;
-    private static final String DEFAULT_HIDDEN_LAYERS_DEFINITION = "10x10";
+public class LearningPanel extends JPanel implements LearningSettings {
+
+    private static final Color VALID_TEXT_COLOR = Color.BLACK;
+    private static final Color INVALID_TEXT_COLOR = Color.RED;
+    private static final Font ARIAL = new Font("Arial", Font.PLAIN, 16);
+
+    private static final int MIN_MINI_BATCH_SIZE = 1;
+    private static final double MIN_LEARNING_RATE = 0;
+    private static final double MIN_ACCEPTABLE_ERROR = 0;
+    private static final int MIN_NUMBER_OF_ITERATIONS = 1;
+
     private static final String HIDDEN_LAYERS_DEFINITION_SEPARATOR = "x";
-    private static final double DEFAULT_LEARNING_RATE = 0.05;
-    private static final double DEFAULT_MIN_ACCEPTABLE_ERROR = 0.01;
-    private static final int DEFAULT_MAX_ITERATIONS = 10_000;
-    private static final int DEFAULT_REPRESENTATIVE_POINTS = 30;
-    private static final String DEFAULT_SYMBOL_LOAD_DIRECTORY = "symbols";
+    private static final int PADDING = 20;
 
     private final JComboBox<LearningMethod> learningMethodComboBox = new JComboBox<>(new LearningMethod[]{
             LearningMethod.STOCHASTIC,
             LearningMethod.MINI_BATCH,
             LearningMethod.BATCH
     });
-    private final JLabel miniBatchSizeLabel = createLabel("Mini batch size:");
-    private final JTextField miniBatchSizeField = new JTextField(String.valueOf(DEFAULT_MINI_BATCH_SIZE));
+    private final JLabel miniBatchSizeLabel = createLabel("Mini-batch size:");
+    private final JTextField miniBatchSizeField = new JTextField();
 
-    private final JComboBox<NeuralNetworkView.DrawingMode> drawingModeComboBox = new JComboBox<>(new NeuralNetworkView.DrawingMode[]{
-            NeuralNetworkView.DrawingMode.DRAW_ALL_WEIGHTS,
-            NeuralNetworkView.DrawingMode.DRAW_POSITIVE_WEIGHTS_ONLY,
-            NeuralNetworkView.DrawingMode.DRAW_NEGATIVE_WEIGHTS_ONLY
+    private final JComboBox<NeuralNetworkView.WeightsDrawingMode> drawingModeComboBox = new JComboBox<>(new NeuralNetworkView.WeightsDrawingMode[]{
+            NeuralNetworkView.WeightsDrawingMode.DRAW_ALL,
+            NeuralNetworkView.WeightsDrawingMode.DRAW_POSITIVE,
+            NeuralNetworkView.WeightsDrawingMode.DRAW_NEGATIVE
     });
 
-    private final JTextField hiddenLayersDefinitionField = new JTextField(DEFAULT_HIDDEN_LAYERS_DEFINITION);
-    private final JTextField learningRateField = new JTextField(String.valueOf(DEFAULT_LEARNING_RATE));
-    private final JTextField minAcceptableErrorField = new JTextField(String.valueOf(DEFAULT_MIN_ACCEPTABLE_ERROR));
-    private final JTextField maxIterationsField = new JTextField(String.valueOf(DEFAULT_MAX_ITERATIONS));
-    private final JTextField numberOfRepresentativePointsField = new JTextField(String.valueOf(DEFAULT_REPRESENTATIVE_POINTS));
-    private final JTextField symbolLoadDirectoryField = new JTextField(DEFAULT_SYMBOL_LOAD_DIRECTORY);
-
+    private final JTextField hiddenLayersDefinitionField = new JTextField();
+    private final JTextField learningRateField = new JTextField();
+    private final JTextField minAcceptableErrorField = new JTextField();
+    private final JTextField maxIterationsField = new JTextField();
     private final NeuralNetworkView neuralNetworkView = new NeuralNetworkView();
 
-    private static final int PADDING = 4;
-    private static final Font ARIAL = new Font("Arial", Font.PLAIN, 16);
-
+    private final Settings settings;
     private NeuralNetwork neuralNetwork;
     private Dataset dataset;
 
-    public LearningPanel() {
+    public LearningPanel(Settings settings) {
+        this.settings = settings;
         setLayout(new BorderLayout());
 
         var panel = new JPanel(new BorderLayout());
@@ -68,14 +72,23 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
     }
 
     private JPanel createSettingsPanel() {
-        var gridLayout = new GridLayout(0, 1);
-        gridLayout.setVgap(2 * PADDING);
-
-        JPanel panel = new JPanel(gridLayout);
+        JPanel panel = new JPanel(new GridLayout(0, 1, 0, PADDING / 4));
         panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
+        addLearningMethod(panel);
+        addMiniBatchSize(panel);
+        addHiddenLayersDefinition(panel);
+        addLearningRate(panel);
+        addMinimumAcceptableError(panel);
+        addMaximumNumberOfIterations(panel);
+        addWeightsDrawingMode(panel);
+        addStartLearningButton(panel);
+
+        return panel;
+    }
+
+    private void addLearningMethod(JPanel panel) {
         panel.add(createLabel("Learning method:"));
-        learningMethodComboBox.setSelectedItem(DEFAULT_LEARNING_METHOD);
         panel.add(learningMethodComboBox);
 
         learningMethodComboBox.addItemListener(e -> {
@@ -84,44 +97,85 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 miniBatchSizeLabel.setEnabled(learningMethod == LearningMethod.MINI_BATCH);
                 miniBatchSizeField.setEnabled(learningMethod == LearningMethod.MINI_BATCH);
+                settings.setStringProperty(LEARNING_METHOD, learningMethod.toString());
             }
         });
 
+        var learningMethod = LearningMethod.from(settings.getStringProperty(LEARNING_METHOD));
+        learningMethodComboBox.setSelectedItem(learningMethod);
+        miniBatchSizeLabel.setEnabled(learningMethod == LearningMethod.MINI_BATCH);
+        miniBatchSizeField.setEnabled(learningMethod == LearningMethod.MINI_BATCH);
+    }
+
+    private void addMiniBatchSize(JPanel panel) {
         panel.add(miniBatchSizeLabel);
         panel.add(miniBatchSizeField);
+        addPropertyField(miniBatchSizeLabel, miniBatchSizeField, MINI_BATCH_SIZE, MIN_MINI_BATCH_SIZE, UserInputValidator::assertIntegerWithLowerBound);
+    }
 
-        panel.add(createLabel("Hidden layers definition (L1 x L2 x ... x Ln):"));
+    private void addHiddenLayersDefinition(JPanel panel) {
+        var hiddenLayersDefinitionLabel = createLabel("Hidden layers definition (L1 x L2 x ... x Ln):");
+        panel.add(hiddenLayersDefinitionLabel);
         panel.add(hiddenLayersDefinitionField);
+        hiddenLayersDefinitionField.setText(settings.getStringProperty(HIDDEN_LAYERS_DEFINITION));
+        hiddenLayersDefinitionField.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
+            var isValid = isHiddenLayersDefinitionValid();
+            hiddenLayersDefinitionLabel.setForeground(isValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
 
-        panel.add(createLabel("Learning rate:"));
+            if (isValid) {
+                settings.setStringProperty(HIDDEN_LAYERS_DEFINITION, hiddenLayersDefinitionField.getText());
+            }
+        });
+    }
+
+    private void addLearningRate(JPanel panel) {
+        var learningRateLabel = createLabel("Learning rate:");
+        panel.add(learningRateLabel);
         panel.add(learningRateField);
+        addPropertyField(learningRateLabel, learningRateField, LEARNING_RATE, MIN_LEARNING_RATE, UserInputValidator::assertDoubleWithLowerBound);
+    }
 
-        panel.add(createLabel("Minimum acceptable error:"));
+    private void addMinimumAcceptableError(JPanel panel) {
+        var minAcceptableErrorLabel = createLabel("Minimum acceptable error:");
+        panel.add(minAcceptableErrorLabel);
         panel.add(minAcceptableErrorField);
+        addPropertyField(minAcceptableErrorLabel, minAcceptableErrorField, MINIMUM_ACCEPTABLE_ERROR, MIN_ACCEPTABLE_ERROR, UserInputValidator::assertDoubleWithLowerBound);
+    }
 
-        panel.add(createLabel("Maximum number of iterations:"));
+    private void addMaximumNumberOfIterations(JPanel panel) {
+        var maxIterationsLabel = createLabel("Maximum number of iterations:");
+        panel.add(maxIterationsLabel);
         panel.add(maxIterationsField);
+        addPropertyField(maxIterationsLabel, maxIterationsField, MAXIMUM_NUMBER_OF_ITERATIONS, MIN_NUMBER_OF_ITERATIONS, UserInputValidator::assertIntegerWithLowerBound);
+    }
 
-        panel.add(createLabel("Number of representative points:"));
-        panel.add(numberOfRepresentativePointsField);
-
-        panel.add(createLabel("Symbol load directory:"));
-        panel.add(symbolLoadDirectoryField);
-
-        panel.add(createLabel("Drawing mode:"));
+    private void addWeightsDrawingMode(JPanel panel) {
+        panel.add(createLabel("Weights drawing mode:"));
         panel.add(drawingModeComboBox);
 
         drawingModeComboBox.addItemListener(e -> {
-            var drawingMode = (NeuralNetworkView.DrawingMode) e.getItem();
+            var drawingMode = (NeuralNetworkView.WeightsDrawingMode) e.getItem();
 
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 neuralNetworkView.setDrawingMode(drawingMode);
+                settings.setStringProperty(DRAWING_MODE, drawingMode.toString());
             }
         });
 
-        panel.add(createStartLearningButton());
+        drawingModeComboBox.setSelectedItem(NeuralNetworkView.WeightsDrawingMode.from(settings.getStringProperty(DRAWING_MODE)));
+    }
 
-        return panel;
+    private <T> void addPropertyField(JLabel label, JTextField field, String property, T lowerBound, BiFunction<String, T, Boolean> predicate) {
+        field.setText(settings.getStringProperty(property));
+
+        field.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
+            var isValid = predicate.apply(field.getText(), lowerBound);
+            label.setForeground(isValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+
+            if (isValid) {
+                settings.setStringProperty(property, field.getText());
+            }
+        });
     }
 
     private JLabel createLabel(String text) {
@@ -130,54 +184,96 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
         return label;
     }
 
-    private JButton createStartLearningButton() {
+    private void addStartLearningButton(JPanel panel) {
         var learnButton = new JButton("Learn neural network");
 
         learnButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (!areAllSettingsProperlyDefined()) return;
+
+                var loadDir = settings.getStringProperty(SYMBOL_LOAD_DIRECTORY);
+                var points = settings.getIntProperty(NUMBER_OF_REPRESENTATIVE_POINTS);
+
                 try {
-                    dataset = DatasetLoader.loadDataset(
-                            getSymbolLoadDirectory(),
-                            getNumberOfRepresentativePoints()
-                    );
-
-                    var layers = calculateNetworkLayers(
-                            dataset.X[0].length,
-                            dataset.y[0].length
-                    );
-
-                    neuralNetwork = new NeuralNetwork(new RandomWeightInitializer(-0.5, 0.5), Sigmoid.getInstance(), layers)
-                            .withLearningRate(getLearningRate())
-                            .withBatchSize(getBatchSize(dataset))
-                            .withMaxIterations(getMaxIterations())
-                            .withMinAcceptableError(getMinAcceptableError());
-
-                    neuralNetworkView.setNeuralNetwork(neuralNetwork);
-                    neuralNetwork.fit(dataset.X, dataset.y);
-
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    dataset = DatasetLoader.loadDataset(loadDir, points);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return;
                 }
+
+                if (dataset == null) {
+                    var msg = "Error loading symbols: Directory '" + loadDir + "/" + points + "' does not exist.";
+                    JOptionPane.showMessageDialog(null, msg);
+                    return;
+                }
+
+                var layers = calculateNetworkLayers(
+                        dataset.X[0].length,
+                        dataset.y[0].length
+                );
+
+                neuralNetwork = new NeuralNetwork(new RandomWeightInitializer(-0.5, 0.5), Sigmoid.getInstance(), layers)
+                        .withLearningRate(Double.parseDouble(learningRateField.getText()))
+                        .withBatchSize(getBatchSize(dataset))
+                        .withMaxIterations(Integer.parseInt(maxIterationsField.getText()))
+                        .withMinAcceptableError(Double.parseDouble(minAcceptableErrorField.getText()));
+
+                neuralNetworkView.setNeuralNetwork(neuralNetwork);
+                neuralNetwork.fit(dataset.X, dataset.y);
+
             }
         });
 
-        return learnButton;
+        panel.add(learnButton);
+    }
+
+    private boolean isHiddenLayersDefinitionValid() {
+        var definition = hiddenLayersDefinitionField.getText();
+        var hiddenLayers = definition.split(HIDDEN_LAYERS_DEFINITION_SEPARATOR, -1);
+
+        for (var layer : hiddenLayers) {
+            var isInteger = UserInputValidator.assertInteger(layer.trim());
+            if (!isInteger) return false;
+        }
+
+        return true;
     }
 
     private int[] calculateNetworkLayers(int inputNeurons, int outputNeurons) {
         var definition = hiddenLayersDefinitionField.getText();
-        var hiddenLayers = definition.replaceAll("\\s+", "").split(HIDDEN_LAYERS_DEFINITION_SEPARATOR);
+        var hiddenLayers = definition.split(HIDDEN_LAYERS_DEFINITION_SEPARATOR);
 
         int[] layers = new int[hiddenLayers.length + 2];
         layers[0] = inputNeurons;
         layers[layers.length - 1] = outputNeurons;
 
         for (int i = 0; i < hiddenLayers.length; i++) {
-            layers[i + 1] = Integer.parseInt(hiddenLayers[i]);
+            layers[i + 1] = Integer.parseInt(hiddenLayers[i].trim());
         }
 
         return layers;
+    }
+
+    private boolean areAllSettingsProperlyDefined() {
+        var isMiniBatchSizeValid = UserInputValidator.assertIntegerWithLowerBound(miniBatchSizeField.getText(), MIN_MINI_BATCH_SIZE);
+        var isHiddenLayersDefinitionValid = isHiddenLayersDefinitionValid();
+        var isLearningRateValid = UserInputValidator.assertDoubleWithLowerBound(learningRateField.getText(), MIN_LEARNING_RATE);
+        var isMinAcceptableErrorValid = UserInputValidator.assertDoubleWithLowerBound(minAcceptableErrorField.getText(), MIN_ACCEPTABLE_ERROR);
+        var isMaxNumberOfIterationsValid = UserInputValidator.assertIntegerWithLowerBound(maxIterationsField.getText(), MIN_NUMBER_OF_ITERATIONS);
+
+        var illDefinedProperties = new StringBuilder();
+
+        if (!isMiniBatchSizeValid) illDefinedProperties.append("\n• Mini-batch size");
+        if (!isHiddenLayersDefinitionValid) illDefinedProperties.append("\n• Hidden layers definition");
+        if (!isLearningRateValid) illDefinedProperties.append("\n• Learning rate");
+        if (!isMinAcceptableErrorValid) illDefinedProperties.append("\n• Minimum acceptable error");
+        if (!isMaxNumberOfIterationsValid) illDefinedProperties.append("\n• Maximum number of iterations");
+
+        if (illDefinedProperties.length() == 0) return true;
+
+        JOptionPane.showMessageDialog(null, "The following properties were not defined correctly:" + illDefinedProperties.toString());
+        return false;
     }
 
     @Override
@@ -205,25 +301,5 @@ public class LearningPanel extends JPanel implements LearningStageSettings {
             default:
                 throw new IllegalStateException("Invalid learning method '" + learningMethod + "'.");
         }
-    }
-
-    private double getLearningRate() {
-        return Double.parseDouble(learningRateField.getText());
-    }
-
-    private double getMinAcceptableError() {
-        return Double.parseDouble(minAcceptableErrorField.getText());
-    }
-
-    private int getMaxIterations() {
-        return Integer.parseInt(maxIterationsField.getText());
-    }
-
-    private int getNumberOfRepresentativePoints() {
-        return Integer.parseInt(numberOfRepresentativePointsField.getText());
-    }
-
-    private String getSymbolLoadDirectory() {
-        return symbolLoadDirectoryField.getText();
     }
 }

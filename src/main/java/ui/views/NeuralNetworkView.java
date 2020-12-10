@@ -4,6 +4,7 @@ import network.NeuralNetwork;
 import network.NeuralNetworkListener;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import settings.LearningMethod;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +28,7 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
     private static final int PADDING = 10;
 
     private NeuralNetwork neuralNetwork;
-    private DrawingMode drawingMode = DrawingMode.DRAW_ALL_WEIGHTS;
+    private WeightsDrawingMode drawingMode = WeightsDrawingMode.DRAW_ALL;
 
     public void setNeuralNetwork(NeuralNetwork neuralNetwork) {
         if (this.neuralNetwork != null) {
@@ -41,7 +42,7 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
         }
     }
 
-    public void setDrawingMode(DrawingMode drawingMode) {
+    public void setDrawingMode(WeightsDrawingMode drawingMode) {
         if (this.drawingMode == drawingMode) return;
         this.drawingMode = drawingMode;
         repaint();
@@ -98,11 +99,11 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
 
     private boolean shouldDrawWeight(double weight) {
         switch (drawingMode) {
-            case DRAW_POSITIVE_WEIGHTS_ONLY:
+            case DRAW_POSITIVE:
                 return weight >= 0;
-            case DRAW_NEGATIVE_WEIGHTS_ONLY:
+            case DRAW_NEGATIVE:
                 return weight < 0;
-            case DRAW_ALL_WEIGHTS:
+            case DRAW_ALL:
                 return true;
             default:
                 throw new IllegalStateException("Invalid drawing mode.");
@@ -150,12 +151,11 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
 
         g.setColor(INPUT_NEURON_COLOR);
         for (int i = 1; i <= layers[0]; i++) {
-            int x = PADDING;
             int neuronLayerSpacingVertical = Math.round((float) height / (layers[0] + 1));
             int y = neuronLayerSpacingVertical * i;
 
             final int diameter = 2 * INPUT_NEURON_RADIUS;
-            g.drawOval(x - INPUT_NEURON_RADIUS, y - INPUT_NEURON_RADIUS, diameter, diameter);
+            g.drawOval(PADDING - INPUT_NEURON_RADIUS, y - INPUT_NEURON_RADIUS, diameter, diameter);
         }
 
         var biases = neuralNetwork.getBiases();
@@ -228,20 +228,30 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
         return new Dimension(WIDTH, 0);
     }
 
-    public enum DrawingMode {
-        DRAW_ALL_WEIGHTS("Draw all weights"),
-        DRAW_POSITIVE_WEIGHTS_ONLY("Draw positive weights only"),
-        DRAW_NEGATIVE_WEIGHTS_ONLY("Draw negative weights only");
+    public enum WeightsDrawingMode {
+        DRAW_ALL("All"),
+        DRAW_POSITIVE("Positive"),
+        DRAW_NEGATIVE("Negative");
 
         private final String name;
 
-        DrawingMode(String name) {
+        WeightsDrawingMode(String name) {
             this.name = name;
         }
 
         @Override
         public String toString() {
             return name;
+        }
+
+        public static WeightsDrawingMode from(String name) {
+            for (var method : values()) {
+                if (method.toString().equals(name)) {
+                    return method;
+                }
+            }
+
+            throw new IllegalArgumentException("Could not convert '" + name + "' to a specific weights drawing mode.");
         }
     }
 }

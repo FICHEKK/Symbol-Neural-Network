@@ -1,6 +1,6 @@
 package ui;
 
-import settings.DataCollectingStageSettings;
+import settings.Settings;
 import structures.Point;
 
 import java.io.IOException;
@@ -12,18 +12,18 @@ import java.util.stream.Collectors;
 
 public class SymbolFileWriter implements SymbolCanvasListener {
 
-    private final DataCollectingStageSettings settings;
+    private final Settings settings;
 
-    public SymbolFileWriter(DataCollectingStageSettings settings) {
+    public SymbolFileWriter(Settings settings) {
         this.settings = settings;
     }
 
     @Override
     public void onNextSymbol(List<Point> points) {
         var directoryPath = Paths.get(
-                settings.getSymbolSaveDirectory(),
+                settings.getStringProperty(Settings.SYMBOL_SAVE_DIRECTORY),
                 String.valueOf(points.size()),
-                settings.getSymbolIdentifier()
+                settings.getStringProperty(Settings.SYMBOL_IDENTIFIER)
         );
 
         var filePath = directoryPath.resolve(UUID.randomUUID().toString());

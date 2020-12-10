@@ -1,6 +1,6 @@
 package ui;
 
-import settings.DataCollectingStageSettings;
+import settings.Settings;
 import structures.Point;
 
 import javax.swing.*;
@@ -16,46 +16,52 @@ public class SymbolCanvas extends JComponent {
     private static final float REPRESENTATIVE_POINT_STROKE_WIDTH = 2;
     private static final double REPRESENTATIVE_POINT_RADIUS = 4;
 
-    private static final Color BACKGROUND_COLOR = new Color(24, 24, 24, 255);
+    private static final Color BACKGROUND_COLOR_ENABLED = new Color(24, 24, 24, 255);
+    private static final Color BACKGROUND_COLOR_DISABLED = new Color(36, 36, 36, 255);
     private static final Color SYMBOL_COLOR = Color.WHITE;
     private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
     private static final Color REPRESENTATIVE_POINT_COLOR = Color.GREEN;
 
-    private final DataCollectingStageSettings settings;
     private final List<SymbolCanvasListener> listeners = new ArrayList<>();
-    private List<structures.Point> points = new ArrayList<>();
-    private List<structures.Point> representativePoints;
+    private List<Point> points = new ArrayList<>();
+    private List<Point> representativePoints;
 
-    public SymbolCanvas(DataCollectingStageSettings settings) {
+    private final Settings settings;
+    private boolean isDrawingEnabled;
+
+    public SymbolCanvas(Settings settings) {
         this.settings = settings;
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (!isDrawingEnabled) return;
                 representativePoints = null;
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (!isDrawingEnabled) return;
+
                 if (points.isEmpty()) {
                     repaint();
                     return;
                 }
 
-                var numberOfRepresentativePoints = settings.getNumberOfRepresentativePoints();
-                representativePoints = structures.Point.getRepresentativePoints(
+                var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
+                representativePoints = Point.getRepresentativePoints(
                         points,
                         numberOfRepresentativePoints
                 );
 
-                var centroid = structures.Point.calculateCentroid(points);
+                var centroid = Point.calculateCentroid(points);
                 points = points.stream().map(point -> point.minus(centroid)).collect(Collectors.toList());
 
-                var maximumAbsoluteXY = structures.Point.findMaximumAbsoluteXY(points);
+                var maximumAbsoluteXY = Point.findMaximumAbsoluteXY(points);
                 var scalar = 1 / Math.max(maximumAbsoluteXY.x, maximumAbsoluteXY.y);
                 points = points.stream().map(point -> point.scale(scalar)).collect(Collectors.toList());
 
-                var normalizedRepresentativePoints = structures.Point.getRepresentativePoints(
+                var normalizedRepresentativePoints = Point.getRepresentativePoints(
                         points,
                         numberOfRepresentativePoints
                 );
@@ -69,7 +75,8 @@ public class SymbolCanvas extends JComponent {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                points.add(new structures.Point(e.getX(), e.getY()));
+                if (!isDrawingEnabled) return;
+                points.add(new Point(e.getX(), e.getY()));
                 repaint();
             }
         });
@@ -83,18 +90,25 @@ public class SymbolCanvas extends JComponent {
         listeners.remove(listener);
     }
 
+    public void setDrawingEnabled(boolean isDrawingEnabled) {
+        if (this.isDrawingEnabled == isDrawingEnabled) return;
+        this.isDrawingEnabled = isDrawingEnabled;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
-        g.setColor(BACKGROUND_COLOR);
+        g.setColor(isDrawingEnabled ? BACKGROUND_COLOR_ENABLED : BACKGROUND_COLOR_DISABLED);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         drawCurveFromPoints((Graphics2D) g, points, SYMBOL_COLOR, false);
 
-        if (settings.showRepresentativeSymbol())
+        if (settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS)) {
             drawCurveFromPoints((Graphics2D) g, representativePoints, REPRESENTATIVE_SYMBOL_COLOR, true);
+        }
     }
 
-    private static void drawCurveFromPoints(Graphics2D g, List<structures.Point> points, Color color, boolean drawDotForEachPoint) {
+    private static void drawCurveFromPoints(Graphics2D g, List<Point> points, Color color, boolean drawDotForEachPoint) {
         if (points == null || points.isEmpty()) return;
 
         g.setStroke(new BasicStroke(SYMBOL_STROKE_WIDTH));

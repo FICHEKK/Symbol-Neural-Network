@@ -1,10 +1,10 @@
 package ui.panels;
 
-import settings.DataCollectingStageSettings;
-import settings.LearningStageSettings;
+import settings.LearningSettings;
+import settings.Settings;
 import structures.Point;
-import ui.views.HistogramView;
 import ui.SymbolCanvas;
+import ui.views.HistogramView;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -19,10 +19,11 @@ public class PredictingPanel extends JPanel {
     private final JLabel predictionLabel = new JLabel("I will write my prediction here!");
     private final HistogramView histogram = new HistogramView();
 
-    public PredictingPanel(DataCollectingStageSettings dataCollectingSettings, LearningStageSettings learningSettings) {
+    public PredictingPanel(Settings settings, LearningSettings learningSettings) {
         setLayout(new BorderLayout());
 
-        SymbolCanvas symbolCanvas = new SymbolCanvas(dataCollectingSettings);
+        SymbolCanvas symbolCanvas = new SymbolCanvas(settings);
+        symbolCanvas.setDrawingEnabled(true);
 
         symbolCanvas.addListener(points -> {
             var neuralNetwork = learningSettings.getNeuralNetwork();
@@ -34,8 +35,15 @@ public class PredictingPanel extends JPanel {
 
             var prediction = neuralNetwork.predict(convertPointsToSample(points));
             var identifiers = learningSettings.getDataset().identifiers;
+
             histogram.setData(identifiers, prediction);
-            predictionLabel.setText(stringifyPrediction(prediction, identifiers));
+
+            if (prediction.length == 1) {
+                predictionLabel.setText("It can only be '" + identifiers[0] + "' as it is the only symbol I've been taught!");
+            }
+            else {
+                predictionLabel.setText(stringifyPrediction(prediction, identifiers));
+            }
         });
 
         add(histogram, BorderLayout.NORTH);
