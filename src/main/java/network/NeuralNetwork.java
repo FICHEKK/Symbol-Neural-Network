@@ -71,10 +71,10 @@ public class NeuralNetwork {
         listeners.remove(listener);
     }
 
-    public void fit(double[][] X, double[][] y) {
-        int sampleIndex = 0;
+    public int fit(double[][] X, double[][] y) {
+        int i, sampleIndex = 0;
 
-        for (int iteration = 1; iteration <= maxIterations; iteration++) {
+        for (i = 1; i <= maxIterations && calculateNetworkError(X, y) > minAcceptableError; i++) {
             resetDeltaWeightsAndBiases();
 
             for (int j = 0; j < batchSize; j++) {
@@ -93,16 +93,10 @@ public class NeuralNetwork {
             }
 
             updateWeightsAndBiases();
-            var error = calculateNetworkError(X, y);
-            System.out.println(iteration + "#: Network error: " + error);
-
-            if (error <= minAcceptableError) {
-                System.out.println("Finished learning - error within acceptable range!");
-                break;
-            }
         }
 
         listeners.forEach(NeuralNetworkListener::onFitFinish);
+        return i - 1;
     }
 
     public double[] predict(double[] sample) {
@@ -117,7 +111,7 @@ public class NeuralNetwork {
         return input.toArray();
     }
 
-    private double calculateNetworkError(double[][] X, double[][] y) {
+    public double calculateNetworkError(double[][] X, double[][] y) {
         var error = 0.0;
         var N = X.length;
 
@@ -128,7 +122,7 @@ public class NeuralNetwork {
         return 1.0 / (2 * N) * error;
     }
 
-    private double calculateSampleError(double[] y, double[] prediction) {
+    public double calculateSampleError(double[] y, double[] prediction) {
         double error = 0.0;
 
         for (int i = 0; i < y.length; i++) {

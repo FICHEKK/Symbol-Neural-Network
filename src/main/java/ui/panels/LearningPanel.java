@@ -54,6 +54,7 @@ public class LearningPanel extends JPanel implements LearningSettings {
     private final JTextField learningRateField = new JTextField();
     private final JTextField minAcceptableErrorField = new JTextField();
     private final JTextField maxIterationsField = new JTextField();
+    private final JLabel learningInfoLabel = new JLabel();
     private final NeuralNetworkView neuralNetworkView = new NeuralNetworkView();
 
     private final Settings settings;
@@ -82,6 +83,7 @@ public class LearningPanel extends JPanel implements LearningSettings {
         addMinimumAcceptableError(panel);
         addMaximumNumberOfIterations(panel);
         addWeightsDrawingMode(panel);
+        panel.add(learningInfoLabel);
         addStartLearningButton(panel);
 
         return panel;
@@ -220,8 +222,10 @@ public class LearningPanel extends JPanel implements LearningSettings {
                         .withMinAcceptableError(Double.parseDouble(minAcceptableErrorField.getText()));
 
                 neuralNetworkView.setNeuralNetwork(neuralNetwork);
-                neuralNetwork.fit(dataset.X, dataset.y);
 
+                var iterations = neuralNetwork.fit(dataset.X, dataset.y);
+                var error = neuralNetwork.calculateNetworkError(dataset.X, dataset.y);
+                learningInfoLabel.setText("Iterations: " + iterations + " | Error: " + error);
             }
         });
 

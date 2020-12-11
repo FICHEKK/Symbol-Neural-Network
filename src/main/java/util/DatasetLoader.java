@@ -7,15 +7,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DatasetLoader {
 
     public static Dataset loadDataset(String loadDirectory, int numberOfRepresentativePoints) throws IOException {
-        var loadDirPath = Paths.get(
-                loadDirectory,
-                String.valueOf(numberOfRepresentativePoints)
-        );
-
+        var loadDirPath = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints));
         if (Files.notExists(loadDirPath)) return null;
 
         System.out.println("Loading symbols from '" + loadDirPath + "'...");
@@ -64,5 +62,20 @@ public class DatasetLoader {
         }
 
         return samples;
+    }
+
+    public static Map<String, Integer> getSymbolToSampleCount(String loadDirectory, int numberOfRepresentativePoints) {
+        var loadDirPath = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints));
+        var sampleToCount = new LinkedHashMap<String, Integer>();
+        if (Files.notExists(loadDirPath)) return sampleToCount;
+
+        var symbolDirs = new File(loadDirPath.toString()).listFiles(File::isDirectory);
+
+        for (var symbolDir : symbolDirs) {
+            File[] symbolFiles = new File(symbolDir.toString()).listFiles(File::isFile);
+            sampleToCount.put(symbolDir.getName(), symbolFiles.length);
+        }
+
+        return sampleToCount;
     }
 }

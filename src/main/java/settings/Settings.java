@@ -30,5 +30,8 @@ public interface Settings {
     void setDoubleProperty(String property, double value);
     void setBooleanProperty(String property, boolean value);
 
+    void addListener(SettingsListener listener);
+    void removeListener(SettingsListener listener);
+
     void save();
 }

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SettingsImpl implements Settings {
@@ -16,6 +17,7 @@ public class SettingsImpl implements Settings {
     private static final String KEY_VALUE_SEPARATOR = "=";
 
     private final Map<String, String> propertyMap = new LinkedHashMap<>();
+    private final List<SettingsListener> listeners = new ArrayList<>();
 
     static {
         DEFAULT_PROPERTY_MAP.put(SYMBOL_IDENTIFIER, "alpha");
@@ -98,21 +100,39 @@ public class SettingsImpl implements Settings {
     @Override
     public void setStringProperty(String property, String value) {
         propertyMap.put(property, value);
+        notifyListeners(property);
     }
 
     @Override
     public void setIntProperty(String property, int value) {
         propertyMap.put(property, String.valueOf(value));
+        notifyListeners(property);
     }
 
     @Override
     public void setDoubleProperty(String property, double value) {
         propertyMap.put(property, String.valueOf(value));
+        notifyListeners(property);
     }
 
     @Override
     public void setBooleanProperty(String property, boolean value) {
         propertyMap.put(property, String.valueOf(value));
+        notifyListeners(property);
+    }
+
+    @Override
+    public void addListener(SettingsListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(SettingsListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners(String property) {
+        listeners.forEach(l -> l.onPropertyChange(property));
     }
 
     private String getDefault(String property) {
