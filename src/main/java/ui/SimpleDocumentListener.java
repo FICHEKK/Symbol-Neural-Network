@@ -1,4 +1,4 @@
-package util;
+package ui;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

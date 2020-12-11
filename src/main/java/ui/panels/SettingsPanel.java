@@ -1,7 +1,7 @@
 package ui.panels;
 
 import settings.Settings;
-import util.SimpleDocumentListener;
+import ui.SimpleDocumentListener;
 import util.UserInputValidator;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.awt.event.ItemEvent;
 public class SettingsPanel extends JPanel {
 
     private static final int MIN_REPRESENTATIVE_POINTS = 2;
-    private static final int MAX_REPRESENTATIVE_POINTS = 1000;
+    private static final int MAX_REPRESENTATIVE_POINTS = 100;
     private static final int PADDING = 20;
 
     private final JTextField numberOfRepresentativePointsField = new JTextField();
@@ -34,6 +34,7 @@ public class SettingsPanel extends JPanel {
         addSymbolSaveDirectoryRow(panel);
         addSymbolLoadDirectoryRow(panel);
         addShowRepresentativePointsRow(panel);
+        addUseRandomWeightColorsRow(panel);
 
         return panel;
     }
@@ -100,6 +101,19 @@ public class SettingsPanel extends JPanel {
         showRepresentativeSymbolCheckbox.setSelected(settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS));
         showRepresentativeSymbolCheckbox.addItemListener(e -> settings.setBooleanProperty(
                 Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS,
+                e.getStateChange() == ItemEvent.SELECTED
+        ));
+    }
+
+    private void addUseRandomWeightColorsRow(JPanel panel) {
+        panel.add(new JLabel("Use random weight colors:"));
+
+        var useRandomWeightColorsCheckbox = new JCheckBox();
+        panel.add(useRandomWeightColorsCheckbox);
+
+        useRandomWeightColorsCheckbox.setSelected(settings.getBooleanProperty(Settings.USE_RANDOM_WEIGHT_COLORS));
+        useRandomWeightColorsCheckbox.addItemListener(e -> settings.setBooleanProperty(
+                Settings.USE_RANDOM_WEIGHT_COLORS,
                 e.getStateChange() == ItemEvent.SELECTED
         ));
     }

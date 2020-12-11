@@ -19,6 +19,7 @@ public interface Settings {
     String SYMBOL_SAVE_DIRECTORY = "SYMBOL_SAVE_DIRECTORY";
     String SYMBOL_LOAD_DIRECTORY = "SYMBOL_LOAD_DIRECTORY";
     String SHOULD_SHOW_REPRESENTATIVE_POINTS = "SHOW_REPRESENTATIVE_POINTS";
+    String USE_RANDOM_WEIGHT_COLORS = "USE_RANDOM_WEIGHT_COLORS";
 
     String getStringProperty(String property);
     int getIntProperty(String property);

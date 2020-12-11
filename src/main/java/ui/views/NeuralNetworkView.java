@@ -4,12 +4,14 @@ import network.NeuralNetwork;
 import network.NeuralNetworkListener;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import settings.LearningMethod;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Random;
 
 public class NeuralNetworkView extends JComponent implements NeuralNetworkListener {
+
+    private static final Random RANDOM = new Random();
 
     private static final Color BACKGROUND_COLOR = Color.BLACK;
     private static final Color INPUT_NEURON_COLOR = Color.WHITE;
@@ -30,6 +32,8 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
     private NeuralNetwork neuralNetwork;
     private WeightsDrawingMode drawingMode = WeightsDrawingMode.DRAW_ALL;
 
+    private boolean useRandomColors;
+
     public void setNeuralNetwork(NeuralNetwork neuralNetwork) {
         if (this.neuralNetwork != null) {
             this.neuralNetwork.removeListener(this);
@@ -46,6 +50,10 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
         if (this.drawingMode == drawingMode) return;
         this.drawingMode = drawingMode;
         repaint();
+    }
+
+    public void setUseRandomColors(boolean useRandomColors) {
+        this.useRandomColors = useRandomColors;
     }
 
     @Override
@@ -79,12 +87,7 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
                     var weight = W.getEntry(row, col) / max;
                     if (!shouldDrawWeight(weight)) continue;
 
-                    if (weight < 0) {
-                        g.setColor(new Color(NEGATIVE_WEIGHT_R, NEGATIVE_WEIGHT_G, NEGATIVE_WEIGHT_B, (float) Math.abs(weight)));
-                    }
-                    else {
-                        g.setColor(new Color(POSITIVE_WEIGHT_R, POSITIVE_WEIGHT_G, POSITIVE_WEIGHT_B, (float) Math.abs(weight)));
-                    }
+                    g.setColor(getColorForWeight(weight));
 
                     var x1 = neuronLayerSpacingHorizontal * layer + PADDING;
                     var x2 = neuronLayerSpacingHorizontal * (layer + 1) + PADDING;
@@ -170,18 +173,25 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
                 var bias = biases[i - 1].getEntry(j) / max;
                 if (!shouldDrawWeight(bias)) continue;
 
-                if (bias < 0) {
-                    g.setColor(new Color(NEGATIVE_WEIGHT_R, NEGATIVE_WEIGHT_G, NEGATIVE_WEIGHT_B, (float) Math.abs(bias)));
-                }
-                else {
-                    g.setColor(new Color(POSITIVE_WEIGHT_R, POSITIVE_WEIGHT_G, POSITIVE_WEIGHT_B, (float) Math.abs(bias)));
-                }
+                g.setColor(getColorForWeight(bias));
 
                 final int diameter = 2 * BIAS_NEURON_RADIUS;
                 g.fillOval(x - BIAS_NEURON_RADIUS, y - BIAS_NEURON_RADIUS, diameter, diameter);
                 g.setColor(INPUT_NEURON_COLOR);
                 g.drawOval(x - BIAS_NEURON_RADIUS, y - BIAS_NEURON_RADIUS, diameter, diameter);
             }
+        }
+    }
+
+    private Color getColorForWeight(double weight) {
+        if (useRandomColors) {
+            return new Color(RANDOM.nextFloat(), RANDOM.nextFloat(), RANDOM.nextFloat(), (float) Math.abs(weight));
+        }
+        else if (weight < 0) {
+            return new Color(NEGATIVE_WEIGHT_R, NEGATIVE_WEIGHT_G, NEGATIVE_WEIGHT_B, (float) Math.abs(weight));
+        }
+        else {
+            return new Color(POSITIVE_WEIGHT_R, POSITIVE_WEIGHT_G, POSITIVE_WEIGHT_B, (float) Math.abs(weight));
         }
     }
 

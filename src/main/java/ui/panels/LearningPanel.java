@@ -6,10 +6,11 @@ import network.initializers.RandomWeightInitializer;
 import settings.LearningMethod;
 import settings.LearningSettings;
 import settings.Settings;
+import settings.SettingsListener;
 import structures.Dataset;
 import ui.views.NeuralNetworkView;
 import util.DatasetLoader;
-import util.SimpleDocumentListener;
+import ui.SimpleDocumentListener;
 import util.UserInputValidator;
 
 import javax.swing.*;
@@ -22,7 +23,7 @@ import java.util.function.BiFunction;
 
 import static settings.Settings.*;
 
-public class LearningPanel extends JPanel implements LearningSettings {
+public class LearningPanel extends JPanel implements LearningSettings, SettingsListener {
 
     private static final Color VALID_TEXT_COLOR = Color.BLACK;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
@@ -63,11 +64,13 @@ public class LearningPanel extends JPanel implements LearningSettings {
 
     public LearningPanel(Settings settings) {
         this.settings = settings;
+        settings.addListener(this);
         setLayout(new BorderLayout());
 
         var panel = new JPanel(new BorderLayout());
         panel.add(createSettingsPanel(), BorderLayout.CENTER);
         panel.add(neuralNetworkView, BorderLayout.EAST);
+        neuralNetworkView.setUseRandomColors(settings.getBooleanProperty(USE_RANDOM_WEIGHT_COLORS));
 
         add(panel, BorderLayout.CENTER);
     }
@@ -305,5 +308,12 @@ public class LearningPanel extends JPanel implements LearningSettings {
             default:
                 throw new IllegalStateException("Invalid learning method '" + learningMethod + "'.");
         }
+    }
+
+    @Override
+    public void onPropertyChange(String property) {
+        if (!property.equals(USE_RANDOM_WEIGHT_COLORS)) return;
+        var useRandomColors = settings.getBooleanProperty(USE_RANDOM_WEIGHT_COLORS);
+        neuralNetworkView.setUseRandomColors(useRandomColors);
     }
 }

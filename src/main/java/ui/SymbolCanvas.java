@@ -36,6 +36,7 @@ public class SymbolCanvas extends JComponent {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (!isDrawingEnabled) return;
+                points = new ArrayList<>();
                 representativePoints = null;
             }
 
@@ -49,25 +50,23 @@ public class SymbolCanvas extends JComponent {
                 }
 
                 var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
-                representativePoints = Point.getRepresentativePoints(
-                        points,
-                        numberOfRepresentativePoints
-                );
+                representativePoints = Point.getRepresentativePoints(points, numberOfRepresentativePoints);
 
                 var centroid = Point.calculateCentroid(points);
-                points = points.stream().map(point -> point.minus(centroid)).collect(Collectors.toList());
+                var translatedPoints = points.stream().map(point -> point.minus(centroid)).collect(Collectors.toList());
 
-                var maximumAbsoluteXY = Point.findMaximumAbsoluteXY(points);
+                var maximumAbsoluteXY = Point.findMaximumAbsoluteXY(translatedPoints);
                 var scalar = 1 / Math.max(maximumAbsoluteXY.x, maximumAbsoluteXY.y);
-                points = points.stream().map(point -> point.scale(scalar)).collect(Collectors.toList());
+                var translatedAndScaledPoints = translatedPoints.stream()
+                        .map(point -> point.scale(scalar))
+                        .collect(Collectors.toList());
 
                 var normalizedRepresentativePoints = Point.getRepresentativePoints(
-                        points,
+                        translatedAndScaledPoints,
                         numberOfRepresentativePoints
                 );
 
                 listeners.forEach(listener -> listener.onNextSymbol(normalizedRepresentativePoints));
-                points = new ArrayList<>();
                 repaint();
             }
         });

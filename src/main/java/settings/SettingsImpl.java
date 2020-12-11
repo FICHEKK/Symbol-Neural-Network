@@ -34,6 +34,7 @@ public class SettingsImpl implements Settings {
         DEFAULT_PROPERTY_MAP.put(SYMBOL_SAVE_DIRECTORY, "res/symbols");
         DEFAULT_PROPERTY_MAP.put(SYMBOL_LOAD_DIRECTORY, "res/symbols");
         DEFAULT_PROPERTY_MAP.put(SHOULD_SHOW_REPRESENTATIVE_POINTS, "true");
+        DEFAULT_PROPERTY_MAP.put(USE_RANDOM_WEIGHT_COLORS, "false");
     }
 
     public SettingsImpl() {

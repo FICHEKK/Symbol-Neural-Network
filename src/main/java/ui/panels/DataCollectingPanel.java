@@ -7,7 +7,7 @@ import ui.SymbolCanvas;
 import ui.SymbolCanvasListener;
 import ui.SymbolFileWriter;
 import util.DatasetLoader;
-import util.SimpleDocumentListener;
+import ui.SimpleDocumentListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
