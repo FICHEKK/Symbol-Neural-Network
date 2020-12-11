@@ -18,7 +18,8 @@ public class SymbolCanvas extends JComponent {
 
     private static final Color BACKGROUND_COLOR_ENABLED = new Color(24, 24, 24, 255);
     private static final Color BACKGROUND_COLOR_DISABLED = new Color(36, 36, 36, 255);
-    private static final Color SYMBOL_COLOR = Color.WHITE;
+    private static final Color SYMBOL_COLOR_WHILE_DRAWING = Color.WHITE;
+    private static final Color SYMBOL_COLOR_AFTER_DRAWING = new Color(246, 121, 53, 255);
     private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
     private static final Color REPRESENTATIVE_POINT_COLOR = Color.GREEN;
 
@@ -27,6 +28,8 @@ public class SymbolCanvas extends JComponent {
     private List<Point> representativePoints;
 
     private final Settings settings;
+
+    private boolean isDrawing;
     private boolean isDrawingEnabled;
 
     public SymbolCanvas(Settings settings) {
@@ -38,11 +41,13 @@ public class SymbolCanvas extends JComponent {
                 if (!isDrawingEnabled) return;
                 points = new ArrayList<>();
                 representativePoints = null;
+                isDrawing = true;
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (!isDrawingEnabled) return;
+                isDrawing = false;
 
                 if (points.isEmpty()) {
                     repaint();
@@ -100,7 +105,7 @@ public class SymbolCanvas extends JComponent {
         g.setColor(isDrawingEnabled ? BACKGROUND_COLOR_ENABLED : BACKGROUND_COLOR_DISABLED);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        drawCurveFromPoints((Graphics2D) g, points, SYMBOL_COLOR, false);
+        drawCurveFromPoints((Graphics2D) g, points, isDrawing ? SYMBOL_COLOR_WHILE_DRAWING : SYMBOL_COLOR_AFTER_DRAWING, false);
 
         if (settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS)) {
             drawCurveFromPoints((Graphics2D) g, representativePoints, REPRESENTATIVE_SYMBOL_COLOR, true);
