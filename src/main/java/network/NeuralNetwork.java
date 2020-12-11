@@ -6,8 +6,7 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class NeuralNetwork {
 
@@ -72,6 +71,23 @@ public class NeuralNetwork {
     }
 
     public int fit(double[][] X, double[][] y) {
+        if (X.length != y.length) throw new IllegalArgumentException("X.length != y.length");
+
+        var random = new Random();
+
+        for (int i = X.length - 1; i > 0; i--)
+        {
+            int r = random.nextInt(i + 1);
+
+            double[] xi = X[i];
+            X[i] = X[r];
+            X[r] = xi;
+
+            double[] yi = y[i];
+            y[i] = y[r];
+            y[r] = yi;
+        }
+
         int i, sampleIndex = 0;
 
         for (i = 1; i <= maxIterations && calculateNetworkError(X, y) > minAcceptableError; i++) {
