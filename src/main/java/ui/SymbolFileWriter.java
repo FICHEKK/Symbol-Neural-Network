@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SymbolFileWriter implements SymbolCanvasListener {
+public class SymbolFileWriter implements SymbolCanvasFinishListener {
 
     private static final DateFormat FORMAT = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS");
     private static final String SYMBOL_FILE_EXTENSION = ".txt";
@@ -24,10 +24,10 @@ public class SymbolFileWriter implements SymbolCanvasListener {
     }
 
     @Override
-    public void onNextSymbol(List<Point> points) {
+    public void onNextSymbolFinish(List<Point> normalizedPoints) {
         var directoryPath = Paths.get(
                 settings.getStringProperty(Settings.SYMBOL_SAVE_DIRECTORY),
-                String.valueOf(points.size()),
+                settings.getStringProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS),
                 settings.getStringProperty(Settings.SYMBOL_IDENTIFIER)
         );
 
@@ -39,7 +39,7 @@ public class SymbolFileWriter implements SymbolCanvasListener {
             Files.createFile(filePath);
             Files.write(
                     filePath,
-                    points.stream()
+                    normalizedPoints.stream()
                             .map(point -> point.x + System.lineSeparator() + point.y)
                             .collect(Collectors.toList())
             );

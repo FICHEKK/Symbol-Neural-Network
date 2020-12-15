@@ -5,7 +5,7 @@ import settings.SettingsListener;
 import structures.Point;
 import ui.SimpleDocumentListener;
 import ui.SymbolCanvas;
-import ui.SymbolCanvasListener;
+import ui.SymbolCanvasFinishListener;
 import ui.SymbolFileWriter;
 import ui.views.SymbolView;
 import util.DatasetLoader;
@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataCollectingPanel extends JPanel implements SettingsListener, SymbolCanvasListener {
+public class DataCollectingPanel extends JPanel implements SettingsListener, SymbolCanvasFinishListener {
 
     private static final Color VALID_TEXT_COLOR = Color.BLACK;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
@@ -48,8 +48,8 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
 
         symbolCanvas = new SymbolCanvas(settings);
         symbolCanvas.setDrawingEnabled(!settings.getStringProperty(Settings.SYMBOL_IDENTIFIER).isBlank());
-        symbolCanvas.addListener(new SymbolFileWriter(settings));
-        symbolCanvas.addListener(this);
+        symbolCanvas.addSymbolFinishListener(new SymbolFileWriter(settings));
+        symbolCanvas.addSymbolFinishListener(this);
 
         setLayout(new BorderLayout());
         add(symbolCanvas, BorderLayout.CENTER);
@@ -240,7 +240,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
     }
 
     @Override
-    public void onNextSymbol(List<Point> points) {
+    public void onNextSymbolFinish(List<Point> normalizedPoints) {
         var identifier = settings.getStringProperty(Settings.SYMBOL_IDENTIFIER);
 
         if (singleSymbolTable.getColumnCount() != 0) {

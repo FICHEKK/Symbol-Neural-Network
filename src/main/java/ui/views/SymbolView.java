@@ -39,7 +39,7 @@ public class SymbolView extends JComponent {
 
     private List<Point> scalePoints() {
         var center = new Point(getWidth() / 2.0, getHeight() / 2.0);
-        var scaleFactor = Math.min(getWidth() * (0.5f - PADDING), getHeight() * (0.5f - PADDING));
+        var scaleFactor = Math.min(getWidth(), getHeight()) * (0.5f - PADDING);
 
         return normalizedPoints.stream()
                 .map(p -> p.scale(scaleFactor))

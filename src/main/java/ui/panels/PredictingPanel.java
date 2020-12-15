@@ -25,7 +25,7 @@ public class PredictingPanel extends JPanel {
         SymbolCanvas symbolCanvas = new SymbolCanvas(settings);
         symbolCanvas.setDrawingEnabled(true);
 
-        symbolCanvas.addListener(points -> {
+        symbolCanvas.addSymbolUpdateListener(normalizedPoints -> {
             var neuralNetwork = learningSettings.getNeuralNetwork();
 
             if (neuralNetwork == null) {
@@ -33,7 +33,7 @@ public class PredictingPanel extends JPanel {
                 return;
             }
 
-            var prediction = neuralNetwork.predict(convertPointsToSample(points));
+            var prediction = neuralNetwork.predict(convertPointsToSample(normalizedPoints));
             var identifiers = learningSettings.getDataset().identifiers;
 
             histogram.setData(identifiers, prediction);
