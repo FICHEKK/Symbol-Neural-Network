@@ -20,12 +20,13 @@ public class NeuralNetwork {
     private final ActivationFunction function;
     private final int[] layers;
 
-    private double learningRate;
-    private double minAcceptableError;
-    private int maxIterations;
-    private int batchSize;
+    private double learningRate = 0.01;
+    private double minAcceptableError = 0.05;
+    private int maxIterations = Integer.MAX_VALUE;
+    private int batchSize = 1;
 
-    private final List<NeuralNetworkListener> listeners = new ArrayList<>();
+    private final List<NeuralNetworkFitFinishListener> fitFinishListeners = new ArrayList<>();
+    private final List<NeuralNetworkFitUpdateListener> fitUpdateListeners = new ArrayList<>();
 
     public NeuralNetwork(WeightInitializer initializer, ActivationFunction function, int... layers) {
         this.function = function;
@@ -62,15 +63,23 @@ public class NeuralNetwork {
         return this;
     }
 
-    public void addListener(NeuralNetworkListener listener) {
-        listeners.add(listener);
+    public void addFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.add(listener);
     }
 
-    public void removeListener(NeuralNetworkListener listener) {
-        listeners.remove(listener);
+    public void removeFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.remove(listener);
     }
 
-    public int fit(double[][] X, double[][] y) {
+    public void addFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
+        fitUpdateListeners.add(listener);
+    }
+
+    public void removeFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
+        fitUpdateListeners.remove(listener);
+    }
+
+    public void fit(double[][] X, double[][] y) {
         if (X.length != y.length) throw new IllegalArgumentException("X.length != y.length");
 
         var random = new Random();
@@ -109,10 +118,15 @@ public class NeuralNetwork {
             }
 
             updateWeightsAndBiases();
+
+            if (!fitUpdateListeners.isEmpty()) {
+                final var iteration = i;
+                final var error = calculateNetworkError(X, y);
+                fitUpdateListeners.forEach(listener -> listener.onFitUpdate(iteration, error));
+            }
         }
 
-        listeners.forEach(NeuralNetworkListener::onFitFinish);
-        return i - 1;
+        fitFinishListeners.forEach(NeuralNetworkFitFinishListener::onFitFinish);
     }
 
     public double[] predict(double[] sample) {
@@ -220,14 +234,14 @@ public class NeuralNetwork {
     }
 
     public RealMatrix[] getWeights() {
-        return weights;
+        return weights.clone();
     }
 
     public RealVector[] getBiases() {
-        return biases;
+        return biases.clone();
     }
 
     public int[] getLayers() {
-        return layers;
+        return layers.clone();
     }
 }

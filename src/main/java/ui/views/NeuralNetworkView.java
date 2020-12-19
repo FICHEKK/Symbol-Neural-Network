@@ -1,7 +1,7 @@
 package ui.views;
 
 import network.NeuralNetwork;
-import network.NeuralNetworkListener;
+import network.NeuralNetworkFitFinishListener;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
-public class NeuralNetworkView extends JComponent implements NeuralNetworkListener {
+public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFinishListener {
 
     private static final Random RANDOM = new Random();
 
@@ -35,14 +35,16 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkListen
     private boolean useRandomColors;
 
     public void setNeuralNetwork(NeuralNetwork neuralNetwork) {
+        if (this.neuralNetwork == neuralNetwork) return;
+
         if (this.neuralNetwork != null) {
-            this.neuralNetwork.removeListener(this);
+            this.neuralNetwork.removeFitFinishListener(this);
         }
 
         this.neuralNetwork = neuralNetwork;
 
         if (this.neuralNetwork != null) {
-            this.neuralNetwork.addListener(this);
+            this.neuralNetwork.addFitFinishListener(this);
         }
     }
 

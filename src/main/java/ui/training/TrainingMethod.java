@@ -1,13 +1,13 @@
-package settings;
+package ui.training;
 
-public enum LearningMethod {
+public enum TrainingMethod {
     STOCHASTIC("Stochastic"),
     MINI_BATCH("Mini-batch"),
     BATCH("Batch");
 
     private final String name;
 
-    LearningMethod(String name) {
+    TrainingMethod(String name) {
         this.name = name;
     }
 
@@ -16,13 +16,13 @@ public enum LearningMethod {
         return name;
     }
 
-    public static LearningMethod from(String name) {
+    public static TrainingMethod from(String name) {
         for (var method : values()) {
             if (method.toString().equals(name)) {
                 return method;
             }
         }
 
-        throw new IllegalArgumentException("Could not convert '" + name + "' to a specific learning method.");
+        throw new IllegalArgumentException("Could not convert '" + name + "' to a specific training method.");
     }
 }

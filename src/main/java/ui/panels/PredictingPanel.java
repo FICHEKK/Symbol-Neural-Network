@@ -1,16 +1,18 @@
 package ui.panels;
 
-import settings.LearningSettings;
+import network.NeuralNetwork;
 import settings.Settings;
 import structures.Point;
 import ui.SymbolCanvas;
 import ui.views.HistogramView;
+import util.DatasetLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PredictingPanel extends JPanel {
 
@@ -19,14 +21,14 @@ public class PredictingPanel extends JPanel {
     private final JLabel predictionLabel = new JLabel("I will write my prediction here!");
     private final HistogramView histogram = new HistogramView();
 
-    public PredictingPanel(Settings settings, LearningSettings learningSettings) {
+    public PredictingPanel(Settings settings, Supplier<NeuralNetwork> neuralNetworkSupplier) {
         setLayout(new BorderLayout());
 
         SymbolCanvas symbolCanvas = new SymbolCanvas(settings);
         symbolCanvas.setDrawingEnabled(true);
 
         symbolCanvas.addSymbolUpdateListener(normalizedPoints -> {
-            var neuralNetwork = learningSettings.getNeuralNetwork();
+            var neuralNetwork = neuralNetworkSupplier.get();
 
             if (neuralNetwork == null) {
                 predictionLabel.setText("I have not been trained yet...");
@@ -34,7 +36,11 @@ public class PredictingPanel extends JPanel {
             }
 
             var prediction = neuralNetwork.predict(convertPointsToSample(normalizedPoints));
-            var identifiers = learningSettings.getDataset().identifiers;
+            var identifiers = DatasetLoader.getIdentifiers(
+                    settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY),
+                    settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS)
+            ).toArray(new String[0]);
+
 
             histogram.setData(identifiers, prediction);
 

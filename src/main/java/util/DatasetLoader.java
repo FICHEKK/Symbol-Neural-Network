@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DatasetLoader {
 
@@ -51,6 +49,15 @@ public class DatasetLoader {
 
         System.out.println("Loaded " + X.size() + " samples.");
         return new Dataset(X.toArray(OF_DOUBLE), y.toArray(OF_DOUBLE), identifiers);
+    }
+
+    public static List<String> getIdentifiers(String loadDirectory, int numberOfRepresentativePoints) {
+        var loadDirPath = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints));
+        if (Files.notExists(loadDirPath)) return new ArrayList<>();
+
+        return Arrays.stream(loadDirPath.toFile().listFiles(File::isDirectory))
+                .map(File::getName)
+                .collect(Collectors.toList());
     }
 
     private static List<double[]> convertAllNonCorruptSymbolFilesToSamples(File[] symbolFiles, int numberOfRepresentativePoints) throws IOException {

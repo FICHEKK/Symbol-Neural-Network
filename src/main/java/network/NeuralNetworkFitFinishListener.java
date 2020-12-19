@@ -1,6 +1,6 @@
 package network;
 
 @FunctionalInterface
-public interface NeuralNetworkListener {
+public interface NeuralNetworkFitFinishListener {
     void onFitFinish();
 }
