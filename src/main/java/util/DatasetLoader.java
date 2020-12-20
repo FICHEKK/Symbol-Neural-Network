@@ -25,17 +25,15 @@ public class DatasetLoader {
 
     private static Dataset convertFilesToDataset(Path loadDirPath, int numberOfRepresentativePoints) throws IOException {
         var X = new ArrayList<double[]>();
-        var y = new ArrayList<double[]>();
+        var Y = new ArrayList<double[]>();
 
         var symbols = loadDirPath.toFile().listFiles(File::isDirectory);
         int numberOfClasses = symbols.length;
-        var identifiers = new String[numberOfClasses];
         int classIndex = 0;
 
         for (File symbolDir : symbols) {
             var expectedOutput = new double[numberOfClasses];
             expectedOutput[classIndex] = 1;
-            identifiers[classIndex] = symbolDir.getName();
             classIndex++;
 
             var symbolFiles = symbolDir.listFiles(File::isFile);
@@ -43,12 +41,12 @@ public class DatasetLoader {
 
             for (var sample : samples) {
                 X.add(sample);
-                y.add(expectedOutput);
+                Y.add(expectedOutput);
             }
         }
 
         System.out.println("Loaded " + X.size() + " samples.");
-        return new Dataset(X.toArray(OF_DOUBLE), y.toArray(OF_DOUBLE), identifiers);
+        return new Dataset(X.toArray(OF_DOUBLE), Y.toArray(OF_DOUBLE));
     }
 
     public static List<String> getIdentifiers(String loadDirectory, int numberOfRepresentativePoints) {

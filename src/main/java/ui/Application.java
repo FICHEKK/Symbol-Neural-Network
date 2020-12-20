@@ -1,10 +1,11 @@
 package ui;
 
-import settings.*;
+import settings.Settings;
+import settings.SettingsImpl;
 import ui.panels.DataCollectingPanel;
+import ui.panels.PredictingPanel;
 import ui.panels.SettingsPanel;
 import ui.training.TrainingPanel;
-import ui.panels.PredictingPanel;
 import ui.training.TrainingPanelModel;
 
 import javax.swing.*;

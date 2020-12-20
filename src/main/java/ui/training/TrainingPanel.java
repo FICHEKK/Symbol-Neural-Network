@@ -43,6 +43,9 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
     private final JLabel maxIterationsLabel = createLabel("Maximum number of iterations:");
     private final JTextField maxIterationsField = new JTextField();
 
+    private final JLabel additionalPermutationsPerSampleLabel = createLabel("Additional permutations per sample:");
+    private final JTextField additionalPermutationsPerLabelField = new JTextField();
+
     private final JLabel weightsDrawingModeLabel = createLabel("Weights drawing mode:");
     private final JComboBox<WeightsDrawingMode> weightsDrawingModeComboBox = new JComboBox<>();
 
@@ -62,6 +65,7 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
         learningRateField.setText(model.getLearningRate());
         minimumAcceptableErrorField.setText(model.getMinimumAcceptableError());
         maxIterationsField.setText(model.getMaximumNumberOfIterations());
+        additionalPermutationsPerLabelField.setText(model.getAdditionalPermutationsPerSample());
         weightsDrawingModeComboBox.setSelectedItem(model.getWeightsDrawingMode());
         neuralNetworkView.setDrawingMode(model.getWeightsDrawingMode());
         neuralNetworkView.setUseRandomColors(model.getUseRandomWeightColors());
@@ -108,6 +112,9 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
         panel.add(maxIterationsLabel);
         panel.add(maxIterationsField);
 
+        panel.add(additionalPermutationsPerSampleLabel);
+        panel.add(additionalPermutationsPerLabelField);
+
         panel.add(weightsDrawingModeLabel);
         panel.add(weightsDrawingModeComboBox);
 
@@ -134,6 +141,9 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
 
         maxIterationsField.getDocument().addDocumentListener((SimpleDocumentListener) e ->
                 model.setMaximumNumberOfIterations(maxIterationsField.getText()));
+
+        additionalPermutationsPerLabelField.getDocument().addDocumentListener((SimpleDocumentListener) e ->
+                model.setAdditionalPermutationsPerSample(additionalPermutationsPerLabelField.getText()));
 
         weightsDrawingModeComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -184,6 +194,7 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
             learningRateLabel.setForeground(state.isLearningRateValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
             minimumAcceptableErrorLabel.setForeground(state.isMinimumAcceptableErrorValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
             maxIterationsLabel.setForeground(state.isMaximumNumberOfIterationsValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+            additionalPermutationsPerSampleLabel.setForeground(state.isAdditionalPermutationsPerSampleValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
             neuralNetworkView.setUseRandomColors(state.useRandomWeightColors);
             trainNeuralNetworkButton.setEnabled(state.isTrainNeuralNetworkButtonEnabled);
         });

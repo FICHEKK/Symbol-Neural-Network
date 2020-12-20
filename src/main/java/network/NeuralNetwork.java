@@ -43,67 +43,16 @@ public class NeuralNetwork {
         initializer.initializeBiases(biases, layers);
     }
 
-    public NeuralNetwork withLearningRate(double learningRate) {
-        this.learningRate = learningRate;
-        return this;
-    }
-
-    public NeuralNetwork withMinAcceptableError(double minAcceptableError) {
-        this.minAcceptableError = minAcceptableError;
-        return this;
-    }
-
-    public NeuralNetwork withMaxIterations(int maxIterations) {
-        this.maxIterations = maxIterations;
-        return this;
-    }
-
-    public NeuralNetwork withBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-        return this;
-    }
-
-    public void addFitFinishListener(NeuralNetworkFitFinishListener listener) {
-        fitFinishListeners.add(listener);
-    }
-
-    public void removeFitFinishListener(NeuralNetworkFitFinishListener listener) {
-        fitFinishListeners.remove(listener);
-    }
-
-    public void addFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
-        fitUpdateListeners.add(listener);
-    }
-
-    public void removeFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
-        fitUpdateListeners.remove(listener);
-    }
-
-    public void fit(double[][] X, double[][] y) {
-        if (X.length != y.length) throw new IllegalArgumentException("X.length != y.length");
-
-        var random = new Random();
-
-        for (int i = X.length - 1; i > 0; i--)
-        {
-            int r = random.nextInt(i + 1);
-
-            double[] xi = X[i];
-            X[i] = X[r];
-            X[r] = xi;
-
-            double[] yi = y[i];
-            y[i] = y[r];
-            y[r] = yi;
-        }
+    public void fit(double[][] X, double[][] Y) {
+        if (X.length != Y.length) throw new IllegalArgumentException("X.length != Y.length");
 
         int i, sampleIndex = 0;
 
-        for (i = 1; i <= maxIterations && calculateNetworkError(X, y) > minAcceptableError; i++) {
+        for (i = 1; i <= maxIterations; i++) {
             resetDeltaWeightsAndBiases();
 
             for (int j = 0; j < batchSize; j++) {
-                calculateOutputLayerError(y[sampleIndex], predict(X[sampleIndex]));
+                calculateOutputLayerError(Y[sampleIndex], predict(X[sampleIndex]));
 
                 for (int layer = errors.length - 2; layer >= 1; layer--) {
                     calculateHiddenLayerError(layer);
@@ -119,11 +68,14 @@ public class NeuralNetwork {
 
             updateWeightsAndBiases();
 
+            final var error = calculateNetworkError(X, Y);
+
             if (!fitUpdateListeners.isEmpty()) {
                 final var iteration = i;
-                final var error = calculateNetworkError(X, y);
                 fitUpdateListeners.forEach(listener -> listener.onFitUpdate(iteration, error));
             }
+
+            if (error <= minAcceptableError) break;
         }
 
         fitFinishListeners.forEach(NeuralNetworkFitFinishListener::onFitFinish);
@@ -233,6 +185,30 @@ public class NeuralNetwork {
         }
     }
 
+    // =============================================================================================
+    //                                       Listeners
+    // =============================================================================================
+
+    public void addFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.add(listener);
+    }
+
+    public void removeFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.remove(listener);
+    }
+
+    public void addFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
+        fitUpdateListeners.add(listener);
+    }
+
+    public void removeFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
+        fitUpdateListeners.remove(listener);
+    }
+
+    // =============================================================================================
+    //                                       Getters
+    // =============================================================================================
+
     public RealMatrix[] getWeights() {
         return weights.clone();
     }
@@ -243,5 +219,25 @@ public class NeuralNetwork {
 
     public int[] getLayers() {
         return layers.clone();
+    }
+
+    // =============================================================================================
+    //                                       Setters
+    // =============================================================================================
+
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+
+    public void setMinAcceptableError(double minAcceptableError) {
+        this.minAcceptableError = minAcceptableError;
+    }
+
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 }

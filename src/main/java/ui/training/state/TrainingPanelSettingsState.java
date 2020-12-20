@@ -7,6 +7,7 @@ public class TrainingPanelSettingsState extends TrainingPanelState {
     public final boolean isLearningRateValid;
     public final boolean isMinimumAcceptableErrorValid;
     public final boolean isMaximumNumberOfIterationsValid;
+    public final boolean isAdditionalPermutationsPerSampleValid;
     public final boolean isMiniBatchSectionEnabled;
     public final boolean isTrainNeuralNetworkButtonEnabled;
     public final boolean useRandomWeightColors;
@@ -16,6 +17,7 @@ public class TrainingPanelSettingsState extends TrainingPanelState {
                                       boolean isLearningRateValid,
                                       boolean isMinimumAcceptableErrorValid,
                                       boolean isMaximumNumberOfIterationsValid,
+                                      boolean isAdditionalPermutationsPerSampleValid,
                                       boolean isMiniBatchSectionEnabled,
                                       boolean isTrainNeuralNetworkButtonEnabled,
                                       boolean useRandomWeightColors) {
@@ -24,6 +26,7 @@ public class TrainingPanelSettingsState extends TrainingPanelState {
         this.isLearningRateValid = isLearningRateValid;
         this.isMinimumAcceptableErrorValid = isMinimumAcceptableErrorValid;
         this.isMaximumNumberOfIterationsValid = isMaximumNumberOfIterationsValid;
+        this.isAdditionalPermutationsPerSampleValid = isAdditionalPermutationsPerSampleValid;
         this.isMiniBatchSectionEnabled = isMiniBatchSectionEnabled;
         this.isTrainNeuralNetworkButtonEnabled = isTrainNeuralNetworkButtonEnabled;
         this.useRandomWeightColors = useRandomWeightColors;
