@@ -53,23 +53,11 @@ public class PredictingPanel extends JPanel implements SettingsListener, NeuralN
         });
 
         symbolCanvas.addSymbolUpdateListener(normalizedPoints -> {
-            var network = neuralNetworkHolder.getNeuralNetwork();
-            var prediction = network.predict(convertPointsToSample(normalizedPoints));
-
-            var identifiers = DatasetLoader.getIdentifiers(
-                    settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY),
-                    network.getInputNeuronCount() / 2
-            ).toArray(new String[0]);
-
-            histogram.setData(identifiers, prediction);
-
-            if (prediction.length == 1) {
-                predictionLabel.setText("It can only be '" + identifiers[0] + "' as it is the only symbol I've been taught!");
-            }
-            else {
-                predictionLabel.setText(stringifyPrediction(prediction, identifiers));
-            }
+            if (!settings.getBooleanProperty(Settings.UPDATE_HISTOGRAM_WHILE_DRAWING)) return;
+            updateHistogram(normalizedPoints);
         });
+
+        symbolCanvas.addSymbolFinishListener(this::updateHistogram);
 
         add(histogram, BorderLayout.NORTH);
         add(symbolCanvas, BorderLayout.CENTER);
@@ -78,6 +66,25 @@ public class PredictingPanel extends JPanel implements SettingsListener, NeuralN
         predictionLabel.setHorizontalAlignment(JLabel.CENTER);
         predictionLabel.setBorder(new EmptyBorder(PADDING, 0, PADDING, 0));
         predictionLabel.setForeground(PANEL_TEXT_COLOR);
+    }
+
+    private void updateHistogram(List<Point> normalizedPoints) {
+        var network = neuralNetworkHolder.getNeuralNetwork();
+        var prediction = network.predict(convertPointsToSample(normalizedPoints));
+
+        var identifiers = DatasetLoader.getIdentifiers(
+                settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY),
+                network.getInputNeuronCount() / 2
+        ).toArray(new String[0]);
+
+        histogram.setData(identifiers, prediction);
+
+        if (prediction.length == 1) {
+            predictionLabel.setText("It can only be '" + identifiers[0] + "' as it is the only symbol I've been taught!");
+        }
+        else {
+            predictionLabel.setText(stringifyPrediction(prediction, identifiers));
+        }
     }
 
     private static double[] convertPointsToSample(List<Point> points) {

@@ -44,7 +44,6 @@ public class SettingsPanel extends JPanel {
         panel.setBackground(PANEL_BACKGROUND_COLOR);
 
         var gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new Insets(PANEL_PADDING, 0, PANEL_PADDING, 0);
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 
@@ -100,7 +99,7 @@ public class SettingsPanel extends JPanel {
         panel.setBackground(PANEL_BACKGROUND_COLOR);
 
         addSymbolSaveDirectoryRow(panel);
-        addShowRepresentativePointsRow(panel, Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING);
+        addCheckbox(panel, "Show representative points", Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING);
 
         return panel;
     }
@@ -121,7 +120,8 @@ public class SettingsPanel extends JPanel {
         panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
         panel.setBackground(PANEL_BACKGROUND_COLOR);
 
-        addShowRepresentativePointsRow(panel, Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING);
+        addCheckbox(panel, "Show representative points:", Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING);
+        addCheckbox(panel, "Update histogram while drawing:", Settings.UPDATE_HISTOGRAM_WHILE_DRAWING);
 
         return panel;
     }
@@ -178,8 +178,8 @@ public class SettingsPanel extends JPanel {
         ));
     }
 
-    private void addShowRepresentativePointsRow(JPanel panel, String settingsProperty) {
-        panel.add(createLabel("Show representative points:"));
+    private void addCheckbox(JPanel panel, String labelText, String settingsProperty) {
+        panel.add(createLabel(labelText));
 
         var showRepresentativeSymbolCheckbox = new JCheckBox();
         panel.add(showRepresentativeSymbolCheckbox);
