@@ -1,6 +1,7 @@
 package ui.training;
 
 import network.NeuralNetwork;
+import network.NeuralNetworkFitFinishListener;
 import network.NeuralNetworkFitUpdateListener;
 import network.activation.Sigmoid;
 import network.initializers.RandomWeightInitializer;
@@ -13,6 +14,7 @@ import util.DatasetLoader;
 import util.UserInputValidator;
 
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static settings.Settings.*;
@@ -43,9 +45,9 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
     private String additionalPermutationsPerSample;
     private WeightsDrawingMode weightsDrawingMode;
     private boolean useRandomWeightColors;
+    private boolean isCurrentlyTraining;
 
     private final Settings settings;
-
     private NeuralNetwork neuralNetwork;
     private TrainingPanelModelListener listener;
 
@@ -71,43 +73,51 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
 
     public void trainNeuralNetwork() {
         new Thread(() -> {
-            var loadDirectory = settings.getStringProperty(SYMBOL_LOAD_DIRECTORY);
-            var points = settings.getIntProperty(NUMBER_OF_REPRESENTATIVE_POINTS);
-            Dataset dataset = null;
-
             try {
-                dataset = DatasetLoader.loadDataset(loadDirectory, points);
+                var loadDirectory = settings.getStringProperty(SYMBOL_LOAD_DIRECTORY);
+                var numberOfRepresentativePoints = settings.getIntProperty(NUMBER_OF_REPRESENTATIVE_POINTS);
+
+                var dataset = DatasetLoader.loadDataset(loadDirectory, numberOfRepresentativePoints)
+                        .expand(settings.getIntProperty(ADDITIONAL_PERMUTATIONS_PER_SAMPLE))
+                        .shuffle();
+
+                neuralNetwork = createNeuralNetwork(dataset);
+                listener.onNeuralNetworkChange(neuralNetwork);
+
+                NeuralNetworkFitFinishListener finishListener = () -> {
+                    isCurrentlyTraining = false;
+                    notifyListenerOnSettingsState();
+                };
+
+                NeuralNetworkFitUpdateListener updateListener = (iteration, error) ->
+                        listener.onNextState(new TrainingPanelFitState(iteration, error));
+
+                neuralNetwork.addFitFinishListener(finishListener);
+                neuralNetwork.addFitUpdateListener(updateListener);
+
+                neuralNetwork.fit(dataset.X, dataset.Y);
+
+                neuralNetwork.removeFitFinishListener(finishListener);
+                neuralNetwork.removeFitUpdateListener(updateListener);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                System.err.println(exception.getMessage());
             }
-
-            if (dataset == null) {
-                System.err.println("Error loading symbols: Directory '" + loadDirectory + "/" + points + "' does not exist.");
-                return;
-            }
-
-            dataset = dataset.expand(settings.getIntProperty(ADDITIONAL_PERMUTATIONS_PER_SAMPLE)).shuffle();
-
-            neuralNetwork = new NeuralNetwork(
-                    new RandomWeightInitializer(MIN_RANDOM_WEIGHT, MAX_RANDOM_WEIGHT),
-                    Sigmoid.getInstance(),
-                    calculateNetworkLayers(dataset)
-            );
-
-            neuralNetwork.setLearningRate(Double.parseDouble(learningRate));
-            neuralNetwork.setBatchSize(getBatchSize(dataset));
-            neuralNetwork.setMaxIterations(Integer.parseInt(maximumNumberOfIterations));
-            neuralNetwork.setMinAcceptableError(Double.parseDouble(minimumAcceptableError));
-
-            listener.onNeuralNetworkChange(neuralNetwork);
-
-            NeuralNetworkFitUpdateListener updateListener = (iteration, error) ->
-                    listener.onNextState(new TrainingPanelFitState(iteration, error));
-
-            neuralNetwork.addFitUpdateListener(updateListener);
-            neuralNetwork.fit(dataset.X, dataset.Y);
-            neuralNetwork.removeFitUpdateListener(updateListener);
         }).start();
+    }
+
+    private NeuralNetwork createNeuralNetwork(Dataset dataset) {
+        var network = new NeuralNetwork(
+                new RandomWeightInitializer(MIN_RANDOM_WEIGHT, MAX_RANDOM_WEIGHT),
+                Sigmoid.getInstance(),
+                calculateNetworkLayers(dataset)
+        );
+
+        network.setLearningRate(Double.parseDouble(learningRate));
+        network.setBatchSize(getBatchSize(dataset));
+        network.setMaxIterations(Integer.parseInt(maximumNumberOfIterations));
+        network.setMinAcceptableError(Double.parseDouble(minimumAcceptableError));
+
+        return network;
     }
 
     public void setTrainingMethod(TrainingMethod trainingMethod) {
@@ -157,8 +167,8 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
         settings.setStringProperty(WEIGHTS_DRAWING_MODE, weightsDrawingMode.toString());
     }
 
-    private void savePropertyIfValid(String property, Supplier<Boolean> propertyValidity, String potentialNewValue) {
-        if (propertyValidity.get()) {
+    private void savePropertyIfValid(String property, BooleanSupplier propertyValidity, String potentialNewValue) {
+        if (propertyValidity.getAsBoolean()) {
             settings.setStringProperty(property, potentialNewValue);
         }
     }
@@ -251,9 +261,9 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
     private boolean isHiddenLayersDefinitionValid() {
         var hiddenLayers = hiddenLayersDefinition.split(HIDDEN_LAYERS_DEFINITION_SEPARATOR, -1);
 
-        for (var layer : hiddenLayers) {
+        for (var layerNeuronCount : hiddenLayers) {
             var isIntegerInRange = UserInputValidator.assertIntegerInRange(
-                    layer.trim(),
+                    layerNeuronCount.trim(),
                     MIN_NEURONS_IN_HIDDEN_LAYER,
                     MAX_NEURONS_IN_HIDDEN_LAYER
             );
@@ -284,8 +294,13 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
     }
 
     private boolean isTrainNeuralNetworkButtonEnabled() {
-        return isMiniBatchSizeValid() && isHiddenLayersDefinitionValid() && isLearningRateValid() &&
-                isMinimumAcceptableErrorValid() && isMaximumNumberOfIterationsValid() && isAdditionalPermutationsPerSampleValid();
+        return isMiniBatchSizeValid() &&
+                isHiddenLayersDefinitionValid() &&
+                isLearningRateValid() &&
+                isMinimumAcceptableErrorValid() &&
+                isMaximumNumberOfIterationsValid() &&
+                isAdditionalPermutationsPerSampleValid() &&
+                !isCurrentlyTraining;
     }
 
     @Override

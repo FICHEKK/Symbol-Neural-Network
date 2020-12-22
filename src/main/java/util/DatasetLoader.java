@@ -3,6 +3,7 @@ package util;
 import structures.Dataset;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +18,9 @@ public class DatasetLoader {
 
     public static Dataset loadDataset(String loadDirectory, int numberOfRepresentativePoints) throws IOException {
         var loadDirPath = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints));
-        if (Files.notExists(loadDirPath)) return null;
+
+        if (Files.notExists(loadDirPath))
+            throw new FileNotFoundException("Error loading symbols: Directory '" + loadDirPath + "' does not exist.");
 
         System.out.println("Loading symbols from '" + loadDirPath + "'...");
         return convertFilesToDataset(loadDirPath, numberOfRepresentativePoints);

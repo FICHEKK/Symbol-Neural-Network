@@ -78,6 +78,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
 
                 updateSingleSymbolTable(null);
                 updateAllSymbolsTable();
+                symbolView.clear();
             }
         });
 
@@ -103,6 +104,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
 
                 updateAllSymbolsTable();
                 updateSingleSymbolTable(identifier);
+                symbolView.clear();
             }
         });
     }
@@ -114,6 +116,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
             if (e.getValueIsAdjusting() || allSymbolsTable.getSelectedRow() == -1) return;
             var identifier = allSymbolsTable.getValueAt(allSymbolsTable.getSelectedRow(), 0).toString();
             updateSingleSymbolTable(identifier);
+            symbolView.clear();
         });
 
         singleSymbolTable.getSelectionModel().addListSelectionListener(e -> {

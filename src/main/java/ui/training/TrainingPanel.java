@@ -156,6 +156,7 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
         trainNeuralNetworkButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                trainNeuralNetworkButton.setEnabled(false);
                 model.trainNeuralNetwork();
             }
         });
