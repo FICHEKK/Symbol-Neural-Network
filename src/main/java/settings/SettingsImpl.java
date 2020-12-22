@@ -34,7 +34,8 @@ public class SettingsImpl implements Settings {
         DEFAULT_PROPERTY_MAP.put(NUMBER_OF_REPRESENTATIVE_POINTS, "30");
         DEFAULT_PROPERTY_MAP.put(SYMBOL_SAVE_DIRECTORY, "res/symbols");
         DEFAULT_PROPERTY_MAP.put(SYMBOL_LOAD_DIRECTORY, "res/symbols");
-        DEFAULT_PROPERTY_MAP.put(SHOULD_SHOW_REPRESENTATIVE_POINTS, "true");
+        DEFAULT_PROPERTY_MAP.put(SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING, "true");
+        DEFAULT_PROPERTY_MAP.put(SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING, "true");
         DEFAULT_PROPERTY_MAP.put(USE_RANDOM_WEIGHT_COLORS, "false");
     }
 
@@ -68,8 +69,16 @@ public class SettingsImpl implements Settings {
                 continue;
             }
 
-            System.out.println("Loading property: " + parts[0].trim() + " " + KEY_VALUE_SEPARATOR + " " + parts[1].trim());
-            propertyMap.put(parts[0].trim(), parts[1].trim());
+            var property = parts[0].trim();
+            var value = parts[1].trim();
+
+            if (!DEFAULT_PROPERTY_MAP.containsKey(property)) {
+                System.err.println("Skipping deprecated property '" + property + "'.");
+                continue;
+            }
+
+            System.out.println("Loading property: " + property + " " + KEY_VALUE_SEPARATOR + " " + value);
+            propertyMap.put(property, value);
         }
     }
 
@@ -138,17 +147,18 @@ public class SettingsImpl implements Settings {
     }
 
     private String getDefault(String property) {
-        System.out.println("Fetching default property '" + property + "'.");
-        var defaultProperty = DEFAULT_PROPERTY_MAP.get(property);
 
-        if (defaultProperty != null) {
-            propertyMap.put(property, defaultProperty);
+        var defaultPropertyValue = DEFAULT_PROPERTY_MAP.get(property);
+
+        if (defaultPropertyValue != null) {
+            System.out.print("Fetching default property '" + property + "' " + KEY_VALUE_SEPARATOR + " " + defaultPropertyValue);
+            propertyMap.put(property, defaultPropertyValue);
         }
         else {
             System.err.println("Warning: Not even default property map contains property '" + property + "'.");
         }
 
-        return defaultProperty;
+        return defaultPropertyValue;
     }
 
     @Override

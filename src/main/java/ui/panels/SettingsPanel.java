@@ -5,7 +5,10 @@ import ui.SimpleDocumentListener;
 import util.UserInputValidator;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 
@@ -14,33 +17,111 @@ public class SettingsPanel extends JPanel {
     private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
     private static final Color VALID_TEXT_COLOR = Color.WHITE;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
+    private static final Color BORDER_COLOR = Color.ORANGE;
 
     private static final int MIN_REPRESENTATIVE_POINTS = 2;
     private static final int MAX_REPRESENTATIVE_POINTS = 100;
-    private static final int PADDING = 20;
+    private static final int PANEL_PADDING = 20;
+    private static final int WINDOW_PADDING = PANEL_PADDING * 2;
 
+    private static final LayoutManager PANEL_LAYOUT = new GridLayout(0, 2, PANEL_PADDING, PANEL_PADDING / 2);
+    private static final Border BORDER = new LineBorder(BORDER_COLOR, 1);
+    private static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 14);
     private final JTextField numberOfRepresentativePointsField = new JTextField();
 
     private final Settings settings;
 
     public SettingsPanel(Settings settings) {
         this.settings = settings;
-        this.setBackground(PANEL_BACKGROUND_COLOR);
-
+        setBackground(PANEL_BACKGROUND_COLOR);
+        setBorder(new EmptyBorder(WINDOW_PADDING, WINDOW_PADDING, WINDOW_PADDING, WINDOW_PADDING));
         setLayout(new BorderLayout());
-        add(createSettingsPanel(), BorderLayout.NORTH);
+        add(createAllSectionsPanel(), BorderLayout.NORTH);
     }
 
-    private JPanel createSettingsPanel() {
-        var panel = new JPanel(new GridLayout(0, 2, 0, PADDING / 2));
-        panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
+    private JPanel createAllSectionsPanel() {
+        var panel = new JPanel(new GridBagLayout());
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
+
+        var gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new Insets(PANEL_PADDING, 0, PANEL_PADDING, 0);
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        panel.add(wrapComponentInTitledBorder(createGeneralPanel(), "General"), gridBagConstraints);
+
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        panel.add(wrapComponentInTitledBorder(createDataCollectingPanel(), "Data collecting"), gridBagConstraints);
+
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        panel.add(wrapComponentInTitledBorder(createTrainingPanel(), "Training"), gridBagConstraints);
+
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        panel.add(wrapComponentInTitledBorder(createPredictingPanel(), "Predicting"), gridBagConstraints);
+
+        return panel;
+    }
+
+    private JPanel wrapComponentInTitledBorder(JComponent component, String title) {
+        var panel = new JPanel(new BorderLayout());
+
+        panel.add(component, BorderLayout.CENTER);
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BORDER,
+                title,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.TOP,
+                BORDER_FONT,
+                BORDER_COLOR
+        ));
+
+        return panel;
+    }
+
+    private JPanel createGeneralPanel() {
+        var panel = new JPanel(PANEL_LAYOUT);
+        panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
         panel.setBackground(PANEL_BACKGROUND_COLOR);
 
         addNumberOfRepresentativePointsRow(panel);
+
+        return panel;
+    }
+
+    private JPanel createDataCollectingPanel() {
+        var panel = new JPanel(PANEL_LAYOUT);
+        panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
+
         addSymbolSaveDirectoryRow(panel);
+        addShowRepresentativePointsRow(panel, Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING);
+
+        return panel;
+    }
+
+    private JPanel createTrainingPanel() {
+        var panel = new JPanel(PANEL_LAYOUT);
+        panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
+
         addSymbolLoadDirectoryRow(panel);
-        addShowRepresentativePointsRow(panel);
         addUseRandomWeightColorsRow(panel);
+
+        return panel;
+    }
+
+    private JPanel createPredictingPanel() {
+        var panel = new JPanel(PANEL_LAYOUT);
+        panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
+
+        addShowRepresentativePointsRow(panel, Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING);
 
         return panel;
     }
@@ -97,15 +178,15 @@ public class SettingsPanel extends JPanel {
         ));
     }
 
-    private void addShowRepresentativePointsRow(JPanel panel) {
+    private void addShowRepresentativePointsRow(JPanel panel, String settingsProperty) {
         panel.add(createLabel("Show representative points:"));
 
         var showRepresentativeSymbolCheckbox = new JCheckBox();
         panel.add(showRepresentativeSymbolCheckbox);
 
-        showRepresentativeSymbolCheckbox.setSelected(settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS));
+        showRepresentativeSymbolCheckbox.setSelected(settings.getBooleanProperty(settingsProperty));
         showRepresentativeSymbolCheckbox.addItemListener(e -> settings.setBooleanProperty(
-                Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS,
+                settingsProperty,
                 e.getStateChange() == ItemEvent.SELECTED
         ));
     }

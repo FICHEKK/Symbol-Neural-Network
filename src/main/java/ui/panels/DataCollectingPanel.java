@@ -4,8 +4,8 @@ import settings.Settings;
 import settings.SettingsListener;
 import structures.Point;
 import ui.SimpleDocumentListener;
-import ui.SymbolCanvas;
-import ui.SymbolCanvasFinishListener;
+import ui.symbolCanvas.SymbolCanvas;
+import ui.symbolCanvas.SymbolCanvasFinishListener;
 import ui.SymbolFileWriter;
 import ui.views.SymbolView;
 import util.DatasetLoader;
@@ -17,6 +17,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,7 +41,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
     private final JTable allSymbolsTable = createTable(3);
     private final JTable singleSymbolTable = createTable(1);
     private final SymbolView symbolView = new SymbolView();
-    private final SymbolCanvas symbolCanvas;
+    private final SymbolCanvas symbolCanvas = new SymbolCanvas();
 
     private final Settings settings;
 
@@ -47,10 +49,25 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
         this.settings = settings;
         settings.addListener(this);
 
-        symbolCanvas = new SymbolCanvas(settings);
+        symbolCanvas.setNumberOfRepresentativePoints(settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
+        symbolCanvas.setShowRepresentativePoints(settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING));
         symbolCanvas.setDrawingEnabled(!settings.getStringProperty(Settings.SYMBOL_IDENTIFIER).isBlank());
         symbolCanvas.addSymbolFinishListener(new SymbolFileWriter(settings));
         symbolCanvas.addSymbolFinishListener(this);
+
+        symbolCanvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (symbolCanvas.isDrawingEnabled()) return;
+                JOptionPane.showMessageDialog(
+                        null,
+                        "You must specify symbol identifier before drawing." + System.lineSeparator() +
+                                "You can do so at the bottom of this tab.",
+                        "Identifier not specified",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
 
         setLayout(new BorderLayout());
         add(symbolCanvas, BorderLayout.CENTER);
@@ -238,10 +255,15 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
 
     @Override
     public void onPropertyChange(String property) {
-        if (!property.equals(Settings.NUMBER_OF_REPRESENTATIVE_POINTS)) return;
-        updateAllSymbolsTable();
-        updateSingleSymbolTable(null);
-        symbolView.setSymbol(null);
+        if (property.equals(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING)) {
+            symbolCanvas.setShowRepresentativePoints(settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING));
+        }
+        else if (property.equals(Settings.NUMBER_OF_REPRESENTATIVE_POINTS)) {
+            symbolCanvas.setNumberOfRepresentativePoints(settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
+            updateAllSymbolsTable();
+            updateSingleSymbolTable(null);
+            symbolView.setSymbol(null);
+        }
     }
 
     @Override

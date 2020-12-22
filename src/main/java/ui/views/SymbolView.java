@@ -27,7 +27,7 @@ public class SymbolView extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (normalizedPoints == null) return;
+        if (normalizedPoints == null || normalizedPoints.isEmpty()) return;
 
         g.setColor(SYMBOL_COLOR);
         ((Graphics2D) g).setStroke(new BasicStroke(SYMBOL_STROKE));

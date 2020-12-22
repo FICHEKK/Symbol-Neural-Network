@@ -1,6 +1,7 @@
 package ui.training;
 
 import network.NeuralNetwork;
+import network.holder.NeuralNetworkChangeListener;
 import ui.SimpleDocumentListener;
 import ui.training.state.TrainingPanelFitState;
 import ui.training.state.TrainingPanelSettingsState;
@@ -15,7 +16,7 @@ import java.awt.event.ItemEvent;
 
 import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
-public class TrainingPanel extends JPanel implements TrainingPanelModelListener {
+public class TrainingPanel extends JPanel implements TrainingPanelModelListener, NeuralNetworkChangeListener {
 
     private static final Color VALID_TEXT_COLOR = Color.WHITE;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
@@ -58,6 +59,7 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener 
         initializeComboBoxes();
         this.model = model;
         this.model.setListener(this);
+        this.model.addChangeListener(this);
 
         trainingMethodComboBox.setSelectedItem(model.getTrainingMethod());
         miniBatchSizeField.setText(model.getMiniBatchSize());

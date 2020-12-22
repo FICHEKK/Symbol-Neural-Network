@@ -1,7 +1,5 @@
-package ui;
+package ui.symbolCanvas;
 
-import settings.Settings;
-import settings.SettingsListener;
 import structures.Point;
 
 import javax.swing.*;
@@ -12,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SymbolCanvas extends JComponent implements SettingsListener {
+public class SymbolCanvas extends JComponent {
     private static final float SYMBOL_STROKE_WIDTH = 3;
     private static final float REPRESENTATIVE_POINT_STROKE_WIDTH = 2;
     private static final double REPRESENTATIVE_POINT_RADIUS = 4;
@@ -24,20 +22,18 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
     private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
     private static final Color REPRESENTATIVE_POINT_COLOR = Color.RED;
 
-    private final List<SymbolCanvasFinishListener> finishListeners = new ArrayList<>();
     private final List<SymbolCanvasUpdateListener> updateListeners = new ArrayList<>();
+    private final List<SymbolCanvasFinishListener> finishListeners = new ArrayList<>();
 
     private List<Point> points = new ArrayList<>();
     private List<Point> representativePoints;
 
-    private final Settings settings;
-
+    private int numberOfRepresentativePoints;
+    private boolean showRepresentativePoints;
     private boolean isDrawing;
     private boolean isDrawingEnabled;
 
-    public SymbolCanvas(Settings settings) {
-        this.settings = settings;
-        this.settings.addListener(this);
+    public SymbolCanvas() {
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -70,8 +66,8 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
 
                 points.add(new Point(e.getX(), e.getY()));
 
-                if (settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS)) {
-                    representativePoints = Point.getRepresentativePoints(points, settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
+                if (showRepresentativePoints) {
+                    representativePoints = Point.getRepresentativePoints(points, numberOfRepresentativePoints);
                 }
 
                 if (!updateListeners.isEmpty()) {
@@ -84,12 +80,32 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
         });
     }
 
+    public void addSymbolUpdateListener(SymbolCanvasUpdateListener listener) {
+        updateListeners.add(listener);
+    }
+
     public void addSymbolFinishListener(SymbolCanvasFinishListener listener) {
         finishListeners.add(listener);
     }
 
-    public void addSymbolUpdateListener(SymbolCanvasUpdateListener listener) {
-        updateListeners.add(listener);
+    public void setNumberOfRepresentativePoints(int numberOfRepresentativePoints) {
+        if (this.numberOfRepresentativePoints == numberOfRepresentativePoints) return;
+        this.numberOfRepresentativePoints = numberOfRepresentativePoints;
+
+        if (!points.isEmpty()) {
+            representativePoints = Point.getRepresentativePoints(points, numberOfRepresentativePoints);
+            repaint();
+        }
+    }
+
+    public void setShowRepresentativePoints(boolean showRepresentativePoints) {
+        if (this.showRepresentativePoints == showRepresentativePoints) return;
+        this.showRepresentativePoints = showRepresentativePoints;
+
+        if (!points.isEmpty()) {
+            representativePoints = Point.getRepresentativePoints(points, numberOfRepresentativePoints);
+            repaint();
+        }
     }
 
     public void setDrawingEnabled(boolean isDrawingEnabled) {
@@ -98,8 +114,12 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
         repaint();
     }
 
+    public boolean isDrawingEnabled() {
+        return isDrawingEnabled;
+    }
+
     private List<Point> getNormalizedRepresentativePoints() {
-        var representativePoints = Point.getRepresentativePoints(points, settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
+        var representativePoints = Point.getRepresentativePoints(points, numberOfRepresentativePoints);
 
         var centroid = Point.calculateCentroid(representativePoints);
         var translatedRepresentativePoints = representativePoints.stream().map(point -> point.minus(centroid)).collect(Collectors.toList());
@@ -117,7 +137,7 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
 
         drawCurveFromPoints((Graphics2D) g, points, isDrawing ? SYMBOL_COLOR_WHILE_DRAWING : SYMBOL_COLOR_AFTER_DRAWING, false);
 
-        if (settings.getBooleanProperty(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS)) {
+        if (showRepresentativePoints) {
             drawCurveFromPoints((Graphics2D) g, representativePoints, REPRESENTATIVE_SYMBOL_COLOR, true);
         }
     }
@@ -146,14 +166,6 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
                 var y = (int) (point.y - REPRESENTATIVE_POINT_RADIUS);
                 g.drawOval(x, y, diameter, diameter);
             }
-        }
-    }
-
-    @Override
-    public void onPropertyChange(String property) {
-        if (points.isEmpty()) return;
-        if (property.equals(Settings.SHOULD_SHOW_REPRESENTATIVE_POINTS) || property.equals(Settings.NUMBER_OF_REPRESENTATIVE_POINTS)) {
-            representativePoints = Point.getRepresentativePoints(points, settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
         }
     }
 }

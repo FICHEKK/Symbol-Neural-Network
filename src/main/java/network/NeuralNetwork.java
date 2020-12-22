@@ -221,6 +221,14 @@ public class NeuralNetwork {
         return layers.clone();
     }
 
+    public int getInputNeuronCount() {
+        return layers[0];
+    }
+
+    public int getOutputNeuronCount() {
+        return layers[layers.length - 1];
+    }
+
     // =============================================================================================
     //                                       Setters
     // =============================================================================================

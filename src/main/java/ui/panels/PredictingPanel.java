@@ -1,50 +1,65 @@
 package ui.panels;
 
 import network.NeuralNetwork;
+import network.holder.NeuralNetworkHolder;
+import network.holder.NeuralNetworkChangeListener;
 import settings.Settings;
+import settings.SettingsListener;
 import structures.Point;
-import ui.SymbolCanvas;
+import ui.symbolCanvas.SymbolCanvas;
 import ui.views.HistogramView;
 import util.DatasetLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class PredictingPanel extends JPanel {
+public class PredictingPanel extends JPanel implements SettingsListener, NeuralNetworkChangeListener {
 
     private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
     private static final Color PANEL_TEXT_COLOR = Color.WHITE;
-
     private static final Font ARIAL = new Font("Arial", Font.BOLD, 16);
     private static final int PADDING = 20;
+
     private final JLabel predictionLabel = new JLabel("I will write my prediction here!");
     private final HistogramView histogram = new HistogramView();
+    private final SymbolCanvas symbolCanvas = new SymbolCanvas();
+    private final Settings settings;
+    private final NeuralNetworkHolder neuralNetworkHolder;
 
-    public PredictingPanel(Settings settings, Supplier<NeuralNetwork> neuralNetworkSupplier) {
+    public PredictingPanel(Settings settings, NeuralNetworkHolder neuralNetworkHolder) {
+        this.settings = settings;
+        this.settings.addListener(this);
+
+        this.neuralNetworkHolder = neuralNetworkHolder;
+        this.neuralNetworkHolder.addChangeListener(this);
+
         setLayout(new BorderLayout());
         setBackground(PANEL_BACKGROUND_COLOR);
 
-        SymbolCanvas symbolCanvas = new SymbolCanvas(settings);
-        symbolCanvas.setDrawingEnabled(true);
+        symbolCanvas.setShowRepresentativePoints(settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING));
+        symbolCanvas.setDrawingEnabled(false);
+
+        symbolCanvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (symbolCanvas.isDrawingEnabled()) return;
+                predictionLabel.setText("I have not been trained yet...");
+            }
+        });
 
         symbolCanvas.addSymbolUpdateListener(normalizedPoints -> {
-            var neuralNetwork = neuralNetworkSupplier.get();
+            var network = neuralNetworkHolder.getNeuralNetwork();
+            var prediction = network.predict(convertPointsToSample(normalizedPoints));
 
-            if (neuralNetwork == null) {
-                predictionLabel.setText("I have not been trained yet...");
-                return;
-            }
-
-            var prediction = neuralNetwork.predict(convertPointsToSample(normalizedPoints));
             var identifiers = DatasetLoader.getIdentifiers(
                     settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY),
-                    settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS)
+                    network.getInputNeuronCount() / 2
             ).toArray(new String[0]);
-
 
             histogram.setData(identifiers, prediction);
 
@@ -118,5 +133,23 @@ public class PredictingPanel extends JPanel {
         var copy = Arrays.copyOf(prediction, prediction.length);
         Arrays.sort(copy);
         return copy[copy.length - 1] - copy[copy.length - 2];
+    }
+
+    @Override
+    public void onPropertyChange(String property) {
+        if (property.equals(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING)) {
+            symbolCanvas.setShowRepresentativePoints(settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING));
+        }
+    }
+
+    @Override
+    public void onNeuralNetworkChange(NeuralNetwork neuralNetwork) {
+        var network = neuralNetworkHolder.getNeuralNetwork();
+        symbolCanvas.setDrawingEnabled(network != null);
+
+        if (network != null) {
+            var inputPointCount = network.getInputNeuronCount() / 2;
+            symbolCanvas.setNumberOfRepresentativePoints(inputPointCount);
+        }
     }
 }

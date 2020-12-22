@@ -1,4 +1,4 @@
-package ui;
+package ui.symbolCanvas;
 
 import structures.Point;
 

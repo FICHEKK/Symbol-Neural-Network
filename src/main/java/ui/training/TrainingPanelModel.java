@@ -4,6 +4,8 @@ import network.NeuralNetwork;
 import network.NeuralNetworkFitFinishListener;
 import network.NeuralNetworkFitUpdateListener;
 import network.activation.Sigmoid;
+import network.holder.NeuralNetworkHolder;
+import network.holder.NeuralNetworkChangeListener;
 import network.initializers.RandomWeightInitializer;
 import settings.Settings;
 import settings.SettingsListener;
@@ -14,13 +16,14 @@ import util.DatasetLoader;
 import util.UserInputValidator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import static settings.Settings.*;
 import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
-public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetwork> {
+public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder {
 
     private static final String HIDDEN_LAYERS_DEFINITION_SEPARATOR = "x";
 
@@ -35,6 +38,8 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
 
     private static final double MIN_RANDOM_WEIGHT = -0.5;
     private static final double MAX_RANDOM_WEIGHT = +0.5;
+
+    private final List<NeuralNetworkChangeListener> listeners = new ArrayList<>();
 
     private TrainingMethod trainingMethod;
     private String miniBatchSize;
@@ -82,7 +87,7 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
                         .shuffle();
 
                 neuralNetwork = createNeuralNetwork(dataset);
-                listener.onNeuralNetworkChange(neuralNetwork);
+                listeners.forEach(listener -> listener.onNeuralNetworkChange(neuralNetwork));
 
                 NeuralNetworkFitFinishListener finishListener = () -> {
                     isCurrentlyTraining = false;
@@ -101,6 +106,7 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
                 neuralNetwork.removeFitUpdateListener(updateListener);
             } catch (IOException exception) {
                 System.err.println(exception.getMessage());
+                notifyListenerOnSettingsState();
             }
         }).start();
     }
@@ -304,7 +310,17 @@ public class TrainingPanelModel implements SettingsListener, Supplier<NeuralNetw
     }
 
     @Override
-    public NeuralNetwork get() {
+    public NeuralNetwork getNeuralNetwork() {
         return neuralNetwork;
+    }
+
+    @Override
+    public void addChangeListener(NeuralNetworkChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeChangeListener(NeuralNetworkChangeListener listener) {
+        listeners.remove(listener);
     }
 }

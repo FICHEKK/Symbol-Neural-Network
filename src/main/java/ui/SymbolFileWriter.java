@@ -2,6 +2,7 @@ package ui;
 
 import settings.Settings;
 import structures.Point;
+import ui.symbolCanvas.SymbolCanvasFinishListener;
 
 import java.io.IOException;
 import java.nio.file.Files;
