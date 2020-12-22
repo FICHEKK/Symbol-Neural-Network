@@ -137,6 +137,18 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
             symbolView.clear();
         });
 
+        allSymbolsTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                var selectedRow = allSymbolsTable.getSelectedRow();
+
+                if (selectedRow != -1 && e.getClickCount() == 2) {
+                    var identifier = allSymbolsTable.getValueAt(selectedRow, 0).toString();
+                    symbolIdentifierField.setText(identifier);
+                }
+            }
+        });
+
         singleSymbolTable.getSelectionModel().addListSelectionListener(e -> {
             if (e.getValueIsAdjusting() || singleSymbolTable.getSelectedRow() == -1) return;
 
