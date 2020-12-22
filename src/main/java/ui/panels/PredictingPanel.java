@@ -16,6 +16,9 @@ import java.util.function.Supplier;
 
 public class PredictingPanel extends JPanel {
 
+    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
+    private static final Color PANEL_TEXT_COLOR = Color.WHITE;
+
     private static final Font ARIAL = new Font("Arial", Font.BOLD, 16);
     private static final int PADDING = 20;
     private final JLabel predictionLabel = new JLabel("I will write my prediction here!");
@@ -23,6 +26,7 @@ public class PredictingPanel extends JPanel {
 
     public PredictingPanel(Settings settings, Supplier<NeuralNetwork> neuralNetworkSupplier) {
         setLayout(new BorderLayout());
+        setBackground(PANEL_BACKGROUND_COLOR);
 
         SymbolCanvas symbolCanvas = new SymbolCanvas(settings);
         symbolCanvas.setDrawingEnabled(true);
@@ -58,6 +62,7 @@ public class PredictingPanel extends JPanel {
         predictionLabel.setFont(ARIAL);
         predictionLabel.setHorizontalAlignment(JLabel.CENTER);
         predictionLabel.setBorder(new EmptyBorder(PADDING, 0, PADDING, 0));
+        predictionLabel.setForeground(PANEL_TEXT_COLOR);
     }
 
     private static double[] convertPointsToSample(List<Point> points) {

@@ -17,12 +17,12 @@ public class SymbolCanvas extends JComponent implements SettingsListener {
     private static final float REPRESENTATIVE_POINT_STROKE_WIDTH = 2;
     private static final double REPRESENTATIVE_POINT_RADIUS = 4;
 
-    private static final Color BACKGROUND_COLOR_ENABLED = new Color(24, 24, 24, 255);
-    private static final Color BACKGROUND_COLOR_DISABLED = new Color(36, 36, 36, 255);
-    private static final Color SYMBOL_COLOR_WHILE_DRAWING = Color.WHITE;
+    private static final Color BACKGROUND_COLOR_ENABLED = Color.WHITE;
+    private static final Color BACKGROUND_COLOR_DISABLED = new Color(0xE7E9EF);
+    private static final Color SYMBOL_COLOR_WHILE_DRAWING = Color.BLACK;
     private static final Color SYMBOL_COLOR_AFTER_DRAWING = new Color(246, 121, 53, 255);
     private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
-    private static final Color REPRESENTATIVE_POINT_COLOR = Color.GREEN;
+    private static final Color REPRESENTATIVE_POINT_COLOR = Color.RED;
 
     private final List<SymbolCanvasFinishListener> finishListeners = new ArrayList<>();
     private final List<SymbolCanvasUpdateListener> updateListeners = new ArrayList<>();

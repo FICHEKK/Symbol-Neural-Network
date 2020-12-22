@@ -8,7 +8,7 @@ public class HistogramView extends JComponent {
     private static final int HEIGHT = 64;
     private static final Color BAR_COLOR = new Color(184, 76, 0, 255);
     private static final Color TEXT_COLOR = Color.BLACK;
-    private static final Color BACKGROUND_COLOR = Color.WHITE;
+    private static final Color BACKGROUND_COLOR = new Color(0xE7E9EF);
     private String[] identifiers;
     private double[] prediction;
 

@@ -11,6 +11,10 @@ import java.awt.event.ItemEvent;
 
 public class SettingsPanel extends JPanel {
 
+    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
+    private static final Color VALID_TEXT_COLOR = Color.WHITE;
+    private static final Color INVALID_TEXT_COLOR = Color.RED;
+
     private static final int MIN_REPRESENTATIVE_POINTS = 2;
     private static final int MAX_REPRESENTATIVE_POINTS = 100;
     private static final int PADDING = 20;
@@ -21,6 +25,7 @@ public class SettingsPanel extends JPanel {
 
     public SettingsPanel(Settings settings) {
         this.settings = settings;
+        this.setBackground(PANEL_BACKGROUND_COLOR);
 
         setLayout(new BorderLayout());
         add(createSettingsPanel(), BorderLayout.NORTH);
@@ -29,6 +34,7 @@ public class SettingsPanel extends JPanel {
     private JPanel createSettingsPanel() {
         var panel = new JPanel(new GridLayout(0, 2, 0, PADDING / 2));
         panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
 
         addNumberOfRepresentativePointsRow(panel);
         addSymbolSaveDirectoryRow(panel);
@@ -40,14 +46,13 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addNumberOfRepresentativePointsRow(JPanel panel) {
-        var numberOfRepresentativePointsLabel = new JLabel("Number of representative points " +
+        var numberOfRepresentativePointsLabel = createLabel("Number of representative points " +
                 "[" + MIN_REPRESENTATIVE_POINTS + ", " + MAX_REPRESENTATIVE_POINTS + "]:");
 
         panel.add(numberOfRepresentativePointsLabel);
         panel.add(numberOfRepresentativePointsField);
 
         numberOfRepresentativePointsField.setText(settings.getStringProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS));
-
         numberOfRepresentativePointsField.getDocument().addDocumentListener((SimpleDocumentListener) e -> {
             var isValid = UserInputValidator.assertIntegerInRange(
                     numberOfRepresentativePointsField.getText(),
@@ -55,7 +60,7 @@ public class SettingsPanel extends JPanel {
                     MAX_REPRESENTATIVE_POINTS
             );
 
-            numberOfRepresentativePointsLabel.setForeground(isValid ? Color.BLACK : Color.RED);
+            numberOfRepresentativePointsLabel.setForeground(isValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
 
             if (!isValid) return;
 
@@ -67,7 +72,7 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addSymbolSaveDirectoryRow(JPanel panel) {
-        panel.add(new JLabel("Symbol save directory:"));
+        panel.add(createLabel("Symbol save directory:"));
 
         var symbolSaveDirectoryField = new JTextField();
         panel.add(symbolSaveDirectoryField);
@@ -80,7 +85,7 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addSymbolLoadDirectoryRow(JPanel panel) {
-        panel.add(new JLabel("Symbol load directory:"));
+        panel.add(createLabel("Symbol load directory:"));
 
         var symbolLoadDirectoryField = new JTextField();
         panel.add(symbolLoadDirectoryField);
@@ -93,7 +98,7 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addShowRepresentativePointsRow(JPanel panel) {
-        panel.add(new JLabel("Show representative points:"));
+        panel.add(createLabel("Show representative points:"));
 
         var showRepresentativeSymbolCheckbox = new JCheckBox();
         panel.add(showRepresentativeSymbolCheckbox);
@@ -106,7 +111,7 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addUseRandomWeightColorsRow(JPanel panel) {
-        panel.add(new JLabel("Use random weight colors:"));
+        panel.add(createLabel("Use random weight colors:"));
 
         var useRandomWeightColorsCheckbox = new JCheckBox();
         panel.add(useRandomWeightColorsCheckbox);
@@ -116,5 +121,11 @@ public class SettingsPanel extends JPanel {
                 Settings.USE_RANDOM_WEIGHT_COLORS,
                 e.getStateChange() == ItemEvent.SELECTED
         ));
+    }
+
+    private JLabel createLabel(String text) {
+        var label = new JLabel(text);
+        label.setForeground(VALID_TEXT_COLOR);
+        return label;
     }
 }

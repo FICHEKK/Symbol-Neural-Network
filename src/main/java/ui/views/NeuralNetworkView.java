@@ -13,12 +13,12 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
 
     private static final Random RANDOM = new Random();
 
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
-    private static final Color INPUT_NEURON_COLOR = Color.WHITE;
+    private static final Color BACKGROUND_COLOR = Color.WHITE;
+    private static final Color INPUT_NEURON_COLOR = Color.BLACK;
 
-    private static final float POSITIVE_WEIGHT_R = 0;
-    private static final float POSITIVE_WEIGHT_G = 0.8f;
-    private static final float POSITIVE_WEIGHT_B = 0.2f;
+    private static final float POSITIVE_WEIGHT_R = 0.156f;
+    private static final float POSITIVE_WEIGHT_G = 0.298f;
+    private static final float POSITIVE_WEIGHT_B = 0.524f;
 
     private static final float NEGATIVE_WEIGHT_R = 1;
     private static final float NEGATIVE_WEIGHT_G = 0;
@@ -28,6 +28,9 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
     private static final int BIAS_NEURON_RADIUS = 5;
     private static final int WIDTH = 800;
     private static final int PADDING = 10;
+
+    private static final Stroke NEURON_STROKE = new BasicStroke(0f);
+    private static final Stroke WEIGHT_STROKE = new BasicStroke(0f);
 
     private NeuralNetwork neuralNetwork;
     private WeightsDrawingMode drawingMode = WeightsDrawingMode.DRAW_ALL;
@@ -63,11 +66,12 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, getWidth(), getHeight());
         if (neuralNetwork == null) return;
-        paintWeights(g);
-        paintNeurons(g);
+        paintWeights((Graphics2D) g);
+        paintNeurons((Graphics2D) g);
     }
 
-    private void paintWeights(Graphics g) {
+    private void paintWeights(Graphics2D g) {
+        g.setStroke(WEIGHT_STROKE);
         RealMatrix[] weights = neuralNetwork.getWeights();
         int[] layers = neuralNetwork.getLayers();
         int width = getWidthWithPadding();
@@ -148,13 +152,14 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         return max;
     }
 
-    private void paintNeurons(Graphics g) {
+    private void paintNeurons(Graphics2D g) {
         int[] layers = neuralNetwork.getLayers();
         int width = getWidthWithPadding();
         int height = getHeight();
         int neuronLayerSpacingHorizontal = width / (layers.length - 1);
 
         g.setColor(INPUT_NEURON_COLOR);
+        g.setStroke(NEURON_STROKE);
         for (int i = 1; i <= layers[0]; i++) {
             int neuronLayerSpacingVertical = Math.round((float) height / (layers[0] + 1));
             int y = neuronLayerSpacingVertical * i;

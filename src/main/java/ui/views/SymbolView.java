@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class SymbolView extends JComponent {
 
-    private static final Color SYMBOL_COLOR = Color.BLUE;
+    private static final Color SYMBOL_COLOR = new Color(40, 76, 134, 255);
     private static final float SYMBOL_STROKE = 1f;
     private static final float PADDING = 0.1f;
 

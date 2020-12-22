@@ -26,7 +26,8 @@ import java.util.List;
 
 public class DataCollectingPanel extends JPanel implements SettingsListener, SymbolCanvasFinishListener {
 
-    private static final Color VALID_TEXT_COLOR = Color.BLACK;
+    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
+    private static final Color VALID_TEXT_COLOR = Color.WHITE;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
     private static final int TABLE_WIDTH = 270;
     private static final int PADDING = 10;
@@ -213,6 +214,7 @@ public class DataCollectingPanel extends JPanel implements SettingsListener, Sym
 
     private JPanel createSettingsPanel() {
         JPanel panel = new JPanel(new GridLayout(0, 2));
+        panel.setBackground(PANEL_BACKGROUND_COLOR);
         panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
         panel.add(symbolIdentifierLabel);
         panel.add(symbolIdentifierField);

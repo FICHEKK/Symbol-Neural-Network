@@ -17,7 +17,7 @@ import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
 public class TrainingPanel extends JPanel implements TrainingPanelModelListener {
 
-    private static final Color VALID_TEXT_COLOR = Color.LIGHT_GRAY;
+    private static final Color VALID_TEXT_COLOR = Color.WHITE;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
     private static final Color SETTINGS_PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
     private static final Font ARIAL = new Font("Arial", Font.PLAIN, 14);
