@@ -4,7 +4,8 @@ import settings.Settings;
 import settings.SettingsImpl;
 import ui.panels.DataCollectingPanel;
 import ui.panels.PredictingPanel;
-import ui.panels.SettingsPanel;
+import ui.settings.SettingsPanel;
+import ui.settings.SettingsPanelModel;
 import ui.training.TrainingPanel;
 import ui.training.TrainingPanelModel;
 
@@ -25,7 +26,8 @@ public class Application extends JFrame {
     private final TrainingPanelModel trainingPanelModel = new TrainingPanelModel(settings);
     private final TrainingPanel trainingPanel = new TrainingPanel(trainingPanelModel);
     private final PredictingPanel predictingPanel = new PredictingPanel(settings, trainingPanelModel);
-    private final SettingsPanel globalSettingsPanel = new SettingsPanel(settings);
+    private final SettingsPanelModel settingsPanelModel = new SettingsPanelModel(settings);
+    private final SettingsPanel globalSettingsPanel = new SettingsPanel(settingsPanelModel);
 
     private Application() {
         setTitle(WINDOW_TITLE);
