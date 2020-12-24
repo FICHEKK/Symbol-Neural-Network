@@ -12,7 +12,7 @@ import java.util.Map;
 public class SettingsImpl implements Settings {
 
     private static final Map<String, String> DEFAULT_PROPERTY_MAP = new LinkedHashMap<>();
-    private static final Path SETTINGS_FILE_PATH = Paths.get("res/settings.txt");
+    private static final Path SETTINGS_FILE_PATH = Paths.get("./settings.txt");
     private static final String COMMENT_INDICATOR = "#";
     private static final String KEY_VALUE_SEPARATOR = "=";
 
@@ -32,10 +32,10 @@ public class SettingsImpl implements Settings {
         DEFAULT_PROPERTY_MAP.put(WEIGHTS_DRAWING_MODE, "All");
 
         DEFAULT_PROPERTY_MAP.put(NUMBER_OF_REPRESENTATIVE_POINTS, "30");
-        DEFAULT_PROPERTY_MAP.put(SYMBOL_SAVE_DIRECTORY, "res/symbols");
-        DEFAULT_PROPERTY_MAP.put(SYMBOL_LOAD_DIRECTORY, "res/symbols");
+        DEFAULT_PROPERTY_MAP.put(SYMBOL_SAVE_DIRECTORY, "./symbols");
+        DEFAULT_PROPERTY_MAP.put(SYMBOL_LOAD_DIRECTORY, "./symbols");
         DEFAULT_PROPERTY_MAP.put(SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING, "false");
-        DEFAULT_PROPERTY_MAP.put(UPDATE_HISTOGRAM_WHILE_DRAWING, "false");
+        DEFAULT_PROPERTY_MAP.put(UPDATE_HISTOGRAM_WHILE_DRAWING, "true");
         DEFAULT_PROPERTY_MAP.put(SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING, "false");
         DEFAULT_PROPERTY_MAP.put(USE_RANDOM_WEIGHT_COLORS, "false");
     }
@@ -87,6 +87,7 @@ public class SettingsImpl implements Settings {
         propertyMap.putAll(DEFAULT_PROPERTY_MAP);
         Files.createDirectories(SETTINGS_FILE_PATH.getParent());
         Files.createFile(SETTINGS_FILE_PATH);
+        save();
     }
 
     @Override
@@ -148,7 +149,6 @@ public class SettingsImpl implements Settings {
     }
 
     private String getDefault(String property) {
-
         var defaultPropertyValue = DEFAULT_PROPERTY_MAP.get(property);
 
         if (defaultPropertyValue != null) {
