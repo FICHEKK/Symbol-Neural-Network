@@ -1,6 +1,6 @@
 package network.activation;
 
-import org.apache.commons.math3.linear.RealVector;
+import math.Vector;
 
 public class Sigmoid implements ActivationFunction {
 
@@ -14,11 +14,9 @@ public class Sigmoid implements ActivationFunction {
     }
 
     @Override
-    public RealVector apply(RealVector vector) {
-        var size = vector.getDimension();
-
-        for (int i = 0; i < size; i++) {
-            vector.setEntry(i, apply(vector.getEntry(i)));
+    public Vector apply(Vector vector) {
+        for (int i = 0, size = vector.size(); i < size; i++) {
+            vector.set(i, apply(vector.get(i)));
         }
 
         return vector;

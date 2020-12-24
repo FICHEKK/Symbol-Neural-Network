@@ -1,8 +1,7 @@
 package network.initializers;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+import math.Matrix;
+import math.Vector;
 
 import java.util.Random;
 
@@ -22,20 +21,20 @@ public class RandomWeightInitializer implements WeightInitializer {
     }
 
     @Override
-    public void initializeWeights(RealMatrix[] weights, int[] layers) {
+    public void initializeWeights(Matrix[] weights, int[] layers) {
         for (int i = 0; i < weights.length; i++) {
-            weights[i] = MatrixUtils.createRealMatrix(layers[i + 1], layers[i]);
+            weights[i] = Matrix.zero(layers[i + 1], layers[i]);
 
             for (int row = 0; row < layers[i + 1]; row++) {
                 for (int col = 0; col < layers[i]; col++) {
-                    weights[i].setEntry(row, col, generateRandomNumber());
+                    weights[i].set(row, col, generateRandomNumber());
                 }
             }
         }
     }
 
     @Override
-    public void initializeBiases(RealVector[] biases, int[] layers) {
+    public void initializeBiases(Vector[] biases, int[] layers) {
         for (int layer = 1; layer < layers.length; layer++) {
             int neuronsInLayer = layers[layer];
             double[] values = new double[neuronsInLayer];
@@ -44,7 +43,7 @@ public class RandomWeightInitializer implements WeightInitializer {
                 values[i] = generateRandomNumber();
             }
 
-            biases[layer - 1] = MatrixUtils.createRealVector(values);
+            biases[layer - 1] = Vector.of(values);
         }
     }
 

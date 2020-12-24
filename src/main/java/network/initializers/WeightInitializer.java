@@ -1,9 +1,9 @@
 package network.initializers;
 
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+import math.Matrix;
+import math.Vector;
 
 public interface WeightInitializer {
-    void initializeWeights(RealMatrix[] weights, int[] layers);
-    void initializeBiases(RealVector[] biases, int[] layers);
+    void initializeWeights(Matrix[] weights, int[] layers);
+    void initializeBiases(Vector[] biases, int[] layers);
 }

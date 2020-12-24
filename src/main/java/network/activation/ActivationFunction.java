@@ -1,8 +1,8 @@
 package network.activation;
 
-import org.apache.commons.math3.linear.RealVector;
+import math.Vector;
 
 public interface ActivationFunction {
-    RealVector apply(RealVector vector);
+    Vector apply(Vector vector);
     double apply(double value);
 }

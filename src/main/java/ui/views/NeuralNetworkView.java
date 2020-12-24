@@ -1,9 +1,9 @@
 package ui.views;
 
+import math.Matrix;
+import math.Vector;
 import network.NeuralNetwork;
 import network.NeuralNetworkFitFinishListener;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,7 +72,7 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
 
     private void paintWeights(Graphics2D g) {
         g.setStroke(WEIGHT_STROKE);
-        RealMatrix[] weights = neuralNetwork.getWeights();
+        Matrix[] weights = neuralNetwork.getWeights();
         int[] layers = neuralNetwork.getLayers();
         int width = getWidthWithPadding();
         int height = getHeight();
@@ -82,15 +82,15 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
 
         for (int layer = 0; layer < weights.length; layer++) {
             var W = weights[layer];
-            int rows = W.getRowDimension();
-            int cols = W.getColumnDimension();
+            int rows = W.getRows();
+            int cols = W.getColumns();
 
             int neuronLayerSpacingVertical1 = Math.round((float) height / (layers[layer] + 1));
             int neuronLayerSpacingVertical2 = Math.round((float) height / (layers[layer + 1] + 1));
 
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
-                    var weight = W.getEntry(row, col) / max;
+                    var weight = W.get(row, col) / max;
                     if (!shouldDrawWeight(weight)) continue;
 
                     g.setColor(getColorForWeight(weight));
@@ -119,10 +119,10 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         }
     }
 
-    private static double findAbsoluteMax(RealMatrix[] matrices) {
+    private static double findAbsoluteMax(Matrix[] matrices) {
         var max = Double.NEGATIVE_INFINITY;
 
-        for (RealMatrix matrix : matrices) {
+        for (var matrix : matrices) {
             var matrixMax = findAbsoluteMax(matrix);
 
             if (matrixMax > max) {
@@ -133,15 +133,15 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         return max;
     }
 
-    private static double findAbsoluteMax(RealMatrix matrix) {
+    private static double findAbsoluteMax(Matrix matrix) {
         var max = Double.NEGATIVE_INFINITY;
 
-        int rows = matrix.getRowDimension();
-        int cols = matrix.getColumnDimension();
+        int rows = matrix.getRows();
+        int cols = matrix.getColumns();
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                var entry = Math.abs(matrix.getEntry(row, col));
+                var entry = Math.abs(matrix.get(row, col));
 
                 if (entry > max) {
                     max = entry;
@@ -177,7 +177,7 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
 
             for (int j = 0; j < layers[i]; j++) {
                 int y = neuronLayerSpacingVertical * (j + 1);
-                var bias = biases[i - 1].getEntry(j) / max;
+                var bias = biases[i - 1].get(j) / max;
                 if (!shouldDrawWeight(bias)) continue;
 
                 g.setColor(getColorForWeight(bias));
@@ -202,10 +202,10 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         }
     }
 
-    private static double findAbsoluteMax(RealVector[] vectors) {
+    private static double findAbsoluteMax(Vector[] vectors) {
         var max = Double.NEGATIVE_INFINITY;
 
-        for (RealVector vector : vectors) {
+        for (var vector : vectors) {
             var vectorMax = findAbsoluteMax(vector);
 
             if (vectorMax > max) {
@@ -216,12 +216,11 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
         return max;
     }
 
-    private static double findAbsoluteMax(RealVector vector) {
+    private static double findAbsoluteMax(Vector vector) {
         var max = Double.NEGATIVE_INFINITY;
-        var size = vector.getDimension();
 
-        for (int i = 0; i < size; i++) {
-            var entry = Math.abs(vector.getEntry(i));
+        for (int i = 0, size = vector.size(); i < size; i++) {
+            var entry = Math.abs(vector.get(i));
 
             if (entry > max) {
                 max = entry;
