@@ -86,6 +86,9 @@ public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder
                         .expand(settings.getIntProperty(ADDITIONAL_PERMUTATIONS_PER_SAMPLE))
                         .shuffle();
 
+                if (dataset.X.length == 0)
+                    throw new IOException("You need dataset in order to train a neural network.");
+
                 neuralNetwork = createNeuralNetwork(dataset);
                 listeners.forEach(listener -> listener.onNeuralNetworkChange(neuralNetwork));
 

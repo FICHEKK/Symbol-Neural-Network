@@ -20,11 +20,6 @@ public class SymbolView extends JComponent {
         repaint();
     }
 
-    public void clear() {
-        this.normalizedPoints = null;
-        repaint();
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         if (normalizedPoints == null || normalizedPoints.isEmpty()) return;

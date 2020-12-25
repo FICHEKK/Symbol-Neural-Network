@@ -114,6 +114,7 @@ public class DatasetLoader {
 
         for (var symbolDir : symbolDirs) {
             File[] symbolFiles = new File(symbolDir.toString()).listFiles(File::isFile);
+            if (symbolFiles == null) continue;
             sampleToCount.put(symbolDir.getName(), symbolFiles.length);
         }
 

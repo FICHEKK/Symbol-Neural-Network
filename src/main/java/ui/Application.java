@@ -2,7 +2,8 @@ package ui;
 
 import settings.Settings;
 import settings.SettingsImpl;
-import ui.panels.DataCollectingPanel;
+import ui.dataCollecting.DataCollectingPanel;
+import ui.dataCollecting.DataCollectingModel;
 import ui.panels.PredictingPanel;
 import ui.settings.SettingsPanel;
 import ui.settings.SettingsPanelModel;
@@ -22,10 +23,14 @@ public class Application extends JFrame {
 
     private final Settings settings = new SettingsImpl();
 
-    private final DataCollectingPanel dataCollectingPanel = new DataCollectingPanel(settings);
+    private final DataCollectingModel dataCollectingModel = new DataCollectingModel(settings);
+    private final DataCollectingPanel dataCollectingPanel = new DataCollectingPanel(dataCollectingModel, new SymbolFileWriter(settings));
+
     private final TrainingPanelModel trainingPanelModel = new TrainingPanelModel(settings);
     private final TrainingPanel trainingPanel = new TrainingPanel(trainingPanelModel);
+
     private final PredictingPanel predictingPanel = new PredictingPanel(settings, trainingPanelModel);
+
     private final SettingsPanelModel settingsPanelModel = new SettingsPanelModel(settings);
     private final SettingsPanel globalSettingsPanel = new SettingsPanel(settingsPanelModel);
 
