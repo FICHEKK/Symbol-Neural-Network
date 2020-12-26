@@ -1,4 +1,4 @@
-package ui.predicting;
+package ui.panels.predicting;
 
 import ui.ModelListener;
 import ui.views.HistogramView;

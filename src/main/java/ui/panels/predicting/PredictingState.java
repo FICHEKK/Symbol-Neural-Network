@@ -1,4 +1,4 @@
-package ui.predicting;
+package ui.panels.predicting;
 
 public abstract class PredictingState {
 

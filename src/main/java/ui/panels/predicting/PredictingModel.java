@@ -1,4 +1,4 @@
-package ui.predicting;
+package ui.panels.predicting;
 
 import network.NeuralNetwork;
 import network.holder.NeuralNetworkChangeListener;

@@ -1,4 +1,4 @@
-package ui.training;
+package ui.panels.training;
 
 public abstract class TrainingState {
 

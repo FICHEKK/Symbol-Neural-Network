@@ -1,4 +1,4 @@
-package ui.settings;
+package ui.panels.settings;
 
 public abstract class SettingsState {
 

@@ -1,4 +1,4 @@
-package ui.training;
+package ui.panels.training;
 
 import network.NeuralNetwork;
 import network.holder.NeuralNetworkChangeListener;

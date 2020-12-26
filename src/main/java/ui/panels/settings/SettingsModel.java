@@ -1,4 +1,4 @@
-package ui.settings;
+package ui.panels.settings;
 
 import settings.Settings;
 import ui.ModelListener;

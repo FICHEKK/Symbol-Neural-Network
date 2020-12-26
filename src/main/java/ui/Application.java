@@ -2,14 +2,14 @@ package ui;
 
 import settings.Settings;
 import settings.SettingsImpl;
-import ui.dataCollecting.DataCollectingPanel;
-import ui.dataCollecting.DataCollectingModel;
-import ui.predicting.PredictingModel;
-import ui.predicting.PredictingPanel;
-import ui.settings.SettingsPanel;
-import ui.settings.SettingsModel;
-import ui.training.TrainingPanel;
-import ui.training.TrainingModel;
+import ui.panels.dataCollecting.DataCollectingPanel;
+import ui.panels.dataCollecting.DataCollectingModel;
+import ui.panels.predicting.PredictingModel;
+import ui.panels.predicting.PredictingPanel;
+import ui.panels.settings.SettingsPanel;
+import ui.panels.settings.SettingsModel;
+import ui.panels.training.TrainingPanel;
+import ui.panels.training.TrainingModel;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;

@@ -1,4 +1,4 @@
-package ui.dataCollecting;
+package ui.panels.dataCollecting;
 
 import structures.Point;
 
