@@ -10,8 +10,7 @@ import network.initializers.RandomWeightInitializer;
 import settings.Settings;
 import settings.SettingsListener;
 import structures.Dataset;
-import ui.training.state.TrainingPanelFitState;
-import ui.training.state.TrainingPanelSettingsState;
+import ui.ModelListener;
 import util.DatasetLoader;
 import util.UserInputValidator;
 
@@ -23,7 +22,7 @@ import java.util.function.BooleanSupplier;
 import static settings.Settings.*;
 import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
-public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder {
+public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
 
     private static final String HIDDEN_LAYERS_DEFINITION_SEPARATOR = "x";
 
@@ -54,9 +53,9 @@ public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder
 
     private final Settings settings;
     private NeuralNetwork neuralNetwork;
-    private TrainingPanelModelListener listener;
+    private ModelListener<TrainingState> listener;
 
-    public TrainingPanelModel(Settings settings) {
+    public TrainingModel(Settings settings) {
         this.settings = settings;
         this.settings.addListener(this);
 
@@ -71,7 +70,7 @@ public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder
         useRandomWeightColors = settings.getBooleanProperty(USE_RANDOM_WEIGHT_COLORS);
     }
 
-    public void setListener(TrainingPanelModelListener listener) {
+    public void setListener(ModelListener<TrainingState> listener) {
         this.listener = listener;
         notifyListenerOnSettingsState();
     }
@@ -98,7 +97,7 @@ public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder
                 };
 
                 NeuralNetworkFitUpdateListener updateListener = (iteration, error) ->
-                        listener.onNextState(new TrainingPanelFitState(iteration, error));
+                        listener.onNextState(new TrainingState.FitStatus(iteration, error));
 
                 neuralNetwork.addFitFinishListener(finishListener);
                 neuralNetwork.addFitUpdateListener(updateListener);
@@ -249,7 +248,7 @@ public class TrainingPanelModel implements SettingsListener, NeuralNetworkHolder
 
     private void notifyListenerOnSettingsState() {
         listener.onNextState(
-                new TrainingPanelSettingsState(
+                new TrainingState.Settings(
                         isMiniBatchSizeValid(),
                         isHiddenLayersDefinitionValid(),
                         isLearningRateValid(),

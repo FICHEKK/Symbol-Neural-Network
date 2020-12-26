@@ -1,7 +1,7 @@
 package ui.settings;
 
+import ui.ModelListener;
 import ui.SimpleDocumentListener;
-import ui.settings.state.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,7 +11,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 
-public class SettingsPanel extends JPanel implements SettingsPanelModelListener {
+public class SettingsPanel extends JPanel implements ModelListener<SettingsState> {
 
     private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
     private static final Color VALID_TEXT_COLOR = Color.WHITE;
@@ -26,7 +26,7 @@ public class SettingsPanel extends JPanel implements SettingsPanelModelListener 
     private static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 14);
 
     private final JLabel numberOfRepresentativePointsLabel = createLabel("Number of representative points (from " +
-            SettingsPanelModel.MIN_REPRESENTATIVE_POINTS + " to " + SettingsPanelModel.MAX_REPRESENTATIVE_POINTS + "):");
+            SettingsModel.MIN_REPRESENTATIVE_POINTS + " to " + SettingsModel.MAX_REPRESENTATIVE_POINTS + "):");
     private final JTextField numberOfRepresentativePointsField = new JTextField();
 
     private final JLabel symbolSaveDirectoryLabel = createLabel("Symbol save directory:");
@@ -47,9 +47,9 @@ public class SettingsPanel extends JPanel implements SettingsPanelModelListener 
     private final JLabel updateHistogramWhileDrawingLabel = createLabel("Update histogram while drawing:");
     private final JCheckBox updateHistogramWhileDrawingCheckbox = new JCheckBox();
 
-    private final SettingsPanelModel model;
+    private final SettingsModel model;
 
-    public SettingsPanel(SettingsPanelModel model) {
+    public SettingsPanel(SettingsModel model) {
         this.model = model;
         model.setListener(this);
         setBackground(PANEL_BACKGROUND_COLOR);
@@ -168,21 +168,21 @@ public class SettingsPanel extends JPanel implements SettingsPanelModelListener 
     }
 
     @Override
-    public void onNextState(SettingsPanelState state) {
-        if (state instanceof  SettingsPanelDataCollectingState) {
-            renderDataCollectingSection((SettingsPanelDataCollectingState) state);
+    public void onNextState(SettingsState state) {
+        if (state instanceof SettingsState.DataCollectingSection) {
+            renderDataCollectingSection((SettingsState.DataCollectingSection) state);
         }
-        else if (state instanceof SettingsPanelTrainingState) {
-            renderTrainingSection((SettingsPanelTrainingState) state);
+        else if (state instanceof SettingsState.TrainingSection) {
+            renderTrainingSection((SettingsState.TrainingSection) state);
         }
     }
 
-    private void renderDataCollectingSection(SettingsPanelDataCollectingState state) {
+    private void renderDataCollectingSection(SettingsState.DataCollectingSection state) {
         numberOfRepresentativePointsLabel.setForeground(state.isNumberOfRepresentativePointsValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
         symbolSaveDirectoryLabel.setForeground(state.isSymbolSaveDirectoryValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
     }
 
-    private void renderTrainingSection(SettingsPanelTrainingState state) {
+    private void renderTrainingSection(SettingsState.TrainingSection state) {
         symbolLoadDirectoryLabel.setForeground(state.isSymbolLoadDirectoryValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
     }
 }

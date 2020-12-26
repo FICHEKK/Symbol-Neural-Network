@@ -4,11 +4,12 @@ import settings.Settings;
 import settings.SettingsImpl;
 import ui.dataCollecting.DataCollectingPanel;
 import ui.dataCollecting.DataCollectingModel;
-import ui.panels.PredictingPanel;
+import ui.predicting.PredictingModel;
+import ui.predicting.PredictingPanel;
 import ui.settings.SettingsPanel;
-import ui.settings.SettingsPanelModel;
+import ui.settings.SettingsModel;
 import ui.training.TrainingPanel;
-import ui.training.TrainingPanelModel;
+import ui.training.TrainingModel;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -26,12 +27,13 @@ public class Application extends JFrame {
     private final DataCollectingModel dataCollectingModel = new DataCollectingModel(settings);
     private final DataCollectingPanel dataCollectingPanel = new DataCollectingPanel(dataCollectingModel, new SymbolFileWriter(settings));
 
-    private final TrainingPanelModel trainingPanelModel = new TrainingPanelModel(settings);
-    private final TrainingPanel trainingPanel = new TrainingPanel(trainingPanelModel);
+    private final TrainingModel trainingModel = new TrainingModel(settings);
+    private final TrainingPanel trainingPanel = new TrainingPanel(trainingModel);
 
-    private final PredictingPanel predictingPanel = new PredictingPanel(settings, trainingPanelModel);
+    private final PredictingModel predictingModel = new PredictingModel(settings, trainingModel);
+    private final PredictingPanel predictingPanel = new PredictingPanel(predictingModel);
 
-    private final SettingsPanelModel settingsPanelModel = new SettingsPanelModel(settings);
+    private final SettingsModel settingsPanelModel = new SettingsModel(settings);
     private final SettingsPanel globalSettingsPanel = new SettingsPanel(settingsPanelModel);
 
     private Application() {

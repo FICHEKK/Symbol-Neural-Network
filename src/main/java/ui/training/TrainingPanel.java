@@ -2,10 +2,8 @@ package ui.training;
 
 import network.NeuralNetwork;
 import network.holder.NeuralNetworkChangeListener;
+import ui.ModelListener;
 import ui.SimpleDocumentListener;
-import ui.training.state.TrainingPanelFitState;
-import ui.training.state.TrainingPanelSettingsState;
-import ui.training.state.TrainingPanelState;
 import ui.views.NeuralNetworkView;
 
 import javax.swing.*;
@@ -16,7 +14,7 @@ import java.awt.event.ItemEvent;
 
 import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
-public class TrainingPanel extends JPanel implements TrainingPanelModelListener, NeuralNetworkChangeListener {
+public class TrainingPanel extends JPanel implements ModelListener<TrainingState>, NeuralNetworkChangeListener {
 
     private static final Color VALID_TEXT_COLOR = Color.WHITE;
     private static final Color INVALID_TEXT_COLOR = Color.RED;
@@ -53,9 +51,9 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener,
     private final JLabel trainingStatusLabel = createLabel("");
     private final JButton trainNeuralNetworkButton = new JButton("Train neural network");
 
-    private final TrainingPanelModel model;
+    private final TrainingModel model;
 
-    public TrainingPanel(TrainingPanelModel model) {
+    public TrainingPanel(TrainingModel model) {
         initializeComboBoxes();
         this.model = model;
         this.model.setListener(this);
@@ -179,16 +177,16 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener,
     }
 
     @Override
-    public void onNextState(TrainingPanelState state) {
-        if (state instanceof TrainingPanelSettingsState) {
-            renderSettings((TrainingPanelSettingsState) state);
+    public void onNextState(TrainingState state) {
+        if (state instanceof TrainingState.Settings) {
+            renderSettings((TrainingState.Settings) state);
         }
-        else if (state instanceof TrainingPanelFitState) {
-            renderFitStatus((TrainingPanelFitState) state);
+        else if (state instanceof TrainingState.FitStatus) {
+            renderFitStatus((TrainingState.FitStatus) state);
         }
     }
 
-    private void renderSettings(TrainingPanelSettingsState state) {
+    private void renderSettings(TrainingState.Settings state) {
         SwingUtilities.invokeLater(() -> {
             miniBatchSizeLabel.setEnabled(state.isMiniBatchSectionEnabled);
             miniBatchSizeField.setEnabled(state.isMiniBatchSectionEnabled);
@@ -203,7 +201,7 @@ public class TrainingPanel extends JPanel implements TrainingPanelModelListener,
         });
     }
 
-    private void renderFitStatus(TrainingPanelFitState state) {
+    private void renderFitStatus(TrainingState.FitStatus state) {
         SwingUtilities.invokeLater(() -> trainingStatusLabel.setText("Iterations: " + state.iteration + " | Error: " + state.error));
     }
 }

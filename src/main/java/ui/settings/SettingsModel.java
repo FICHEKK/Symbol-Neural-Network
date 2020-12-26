@@ -1,10 +1,10 @@
 package ui.settings;
 
 import settings.Settings;
-import ui.settings.state.*;
+import ui.ModelListener;
 import util.UserInputValidator;
 
-public class SettingsPanelModel {
+public class SettingsModel {
 
     public static final int MIN_REPRESENTATIVE_POINTS = 2;
     public static final int MAX_REPRESENTATIVE_POINTS = 100;
@@ -18,9 +18,9 @@ public class SettingsPanelModel {
     private boolean updateHistogramWhileDrawing;
 
     private final Settings settings;
-    private SettingsPanelModelListener listener;
+    private ModelListener<SettingsState> listener;
 
-    public SettingsPanelModel(Settings settings) {
+    public SettingsModel(Settings settings) {
         this.settings = settings;
 
         numberOfRepresentativePoints = settings.getStringProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
@@ -32,16 +32,16 @@ public class SettingsPanelModel {
         updateHistogramWhileDrawing = settings.getBooleanProperty(Settings.UPDATE_HISTOGRAM_WHILE_DRAWING);
     }
 
-    public void setListener(SettingsPanelModelListener listener) {
+    public void setListener(ModelListener<SettingsState> listener) {
         this.listener = listener;
     }
 
     private void notifyDataCollectingSectionChanged() {
-        listener.onNextState(new SettingsPanelDataCollectingState(isNumberOfRepresentativePointsValid(), isSymbolSaveDirectoryValid()));
+        listener.onNextState(new SettingsState.DataCollectingSection(isNumberOfRepresentativePointsValid(), isSymbolSaveDirectoryValid()));
     }
 
     private void notifyTrainingSectionChanged() {
-        listener.onNextState(new SettingsPanelTrainingState(isSymbolLoadDirectoryValid()));
+        listener.onNextState(new SettingsState.TrainingSection(isSymbolLoadDirectoryValid()));
     }
 
     // =============================================================================================
