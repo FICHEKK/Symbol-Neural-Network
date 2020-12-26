@@ -1,6 +1,6 @@
 package ui.panels.dataCollecting;
 
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 import ui.SymbolFileWriter;
 import ui.symbolCanvas.SymbolCanvas;

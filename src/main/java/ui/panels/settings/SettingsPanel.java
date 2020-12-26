@@ -1,6 +1,6 @@
 package ui.panels.settings;
 
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 
 import javax.swing.*;

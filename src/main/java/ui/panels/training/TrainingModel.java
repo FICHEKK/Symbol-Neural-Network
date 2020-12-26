@@ -10,7 +10,7 @@ import network.initializers.RandomWeightInitializer;
 import settings.Settings;
 import settings.SettingsListener;
 import structures.Dataset;
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import util.DatasetLoader;
 import util.UserInputValidator;
 

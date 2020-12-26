@@ -1,4 +1,4 @@
-package ui;
+package ui.panels;
 
 @FunctionalInterface
 public interface ModelListener<S> {

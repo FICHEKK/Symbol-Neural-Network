@@ -1,6 +1,6 @@
 package ui.panels.predicting;
 
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.views.HistogramView;
 
 import javax.swing.*;

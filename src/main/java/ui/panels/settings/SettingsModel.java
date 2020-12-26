@@ -1,7 +1,7 @@
 package ui.panels.settings;
 
 import settings.Settings;
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import util.UserInputValidator;
 
 public class SettingsModel {

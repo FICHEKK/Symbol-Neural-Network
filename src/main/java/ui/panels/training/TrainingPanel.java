@@ -2,7 +2,7 @@ package ui.panels.training;
 
 import network.NeuralNetwork;
 import network.holder.NeuralNetworkChangeListener;
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 import ui.views.NeuralNetworkView;
 

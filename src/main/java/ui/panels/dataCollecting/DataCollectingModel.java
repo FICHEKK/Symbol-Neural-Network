@@ -3,7 +3,7 @@ package ui.panels.dataCollecting;
 import settings.Settings;
 import settings.SettingsListener;
 import structures.Point;
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.symbolCanvas.SymbolCanvasFinishListener;
 import util.DatasetLoader;
 import util.FileUtils;

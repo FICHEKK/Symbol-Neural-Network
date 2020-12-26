@@ -6,7 +6,7 @@ import network.holder.NeuralNetworkHolder;
 import settings.Settings;
 import settings.SettingsListener;
 import structures.Point;
-import ui.ModelListener;
+import ui.panels.ModelListener;
 import ui.symbolCanvas.SymbolCanvasFinishListener;
 import ui.symbolCanvas.SymbolCanvasUpdateListener;
 import util.DatasetLoader;
