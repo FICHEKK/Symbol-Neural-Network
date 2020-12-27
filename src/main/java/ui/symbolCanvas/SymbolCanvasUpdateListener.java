@@ -6,5 +6,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface SymbolCanvasUpdateListener {
-    void onNextSymbolUpdate(List<Point> normalizedPoints);
+    void onNextSymbolUpdate(List<List<Point>> partedCurve);
 }

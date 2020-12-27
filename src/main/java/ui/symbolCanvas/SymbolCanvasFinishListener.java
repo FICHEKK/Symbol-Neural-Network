@@ -6,5 +6,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface SymbolCanvasFinishListener {
-    void onNextSymbolFinish(List<Point> normalizedPoints);
+    void onNextSymbolFinish(List<List<Point>> partedCurve);
 }

@@ -62,19 +62,19 @@ public class PredictingModel implements SettingsListener, NeuralNetworkChangeLis
     }
 
     @Override
-    public void onNextSymbolUpdate(List<Point> normalizedPoints) {
+    public void onNextSymbolUpdate(List<List<Point>> partedCurve) {
         if (!settings.getBooleanProperty(Settings.UPDATE_HISTOGRAM_WHILE_DRAWING)) return;
-        updateHistogram(normalizedPoints);
+        updateHistogram(partedCurve);
     }
 
     @Override
-    public void onNextSymbolFinish(List<Point> normalizedPoints) {
-        updateHistogram(normalizedPoints);
+    public void onNextSymbolFinish(List<List<Point>> partedCurve) {
+        updateHistogram(partedCurve);
     }
 
-    private void updateHistogram(List<Point> normalizedPoints) {
+    private void updateHistogram(List<List<Point>> partedCurve) {
         var network = neuralNetworkHolder.getNeuralNetwork();
-        var sample = convertPointsToSample(normalizedPoints);
+        var sample = convertPartedCurveToSample(partedCurve);
         var prediction = network.predict(sample);
 
         var identifiers = DatasetLoader.getIdentifiers(
@@ -89,13 +89,21 @@ public class PredictingModel implements SettingsListener, NeuralNetworkChangeLis
         ));
     }
 
-    private static double[] convertPointsToSample(List<Point> points) {
-        double[] sample = new double[2 * points.size()];
+    private static double[] convertPartedCurveToSample(List<List<Point>> partedCurve) {
+        var pointCount = 0;
+        for (var part : partedCurve) {
+            pointCount += part.size();
+        }
 
-        for (int i = 0; i < points.size(); i++) {
-            Point point = points.get(i);
-            sample[i * 2] = point.x;
-            sample[i * 2 + 1] = point.y;
+        var sample = new double[2 * pointCount];
+        var i = 0;
+
+        for (var part : partedCurve) {
+            for (var point : part) {
+                sample[i * 2] = point.x;
+                sample[i * 2 + 1] = point.y;
+                i++;
+            }
         }
 
         return sample;

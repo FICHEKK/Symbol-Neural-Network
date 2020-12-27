@@ -1,6 +1,7 @@
 package ui.views;
 
 import structures.Point;
+import util.CurvePainter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,40 +11,46 @@ import java.util.stream.Collectors;
 public class SymbolView extends JComponent {
 
     private static final Color SYMBOL_COLOR = new Color(40, 76, 134, 255);
-    private static final float SYMBOL_STROKE = 1f;
-    private static final float PADDING = 0.1f;
+    private static final Stroke SYMBOL_STROKE = new BasicStroke(1f);
+    private static final float WINDOW_PADDING = 0.1f;
 
-    private List<Point> normalizedPoints;
+    private static final Color REPRESENTATIVE_POINT_COLOR = new Color(193, 0, 167, 255);
+    private static final int REPRESENTATIVE_POINT_RADIUS = 3;
 
-    public void setSymbol(List<Point> normalizedPoints) {
-        this.normalizedPoints = normalizedPoints;
+    private List<List<Point>> normalizedPartedCurve;
+
+    public void setSymbol(List<List<Point>> normalizedPartedCurve) {
+        this.normalizedPartedCurve = normalizedPartedCurve;
         repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (normalizedPoints == null || normalizedPoints.isEmpty()) return;
+        if (normalizedPartedCurve == null || normalizedPartedCurve.isEmpty()) return;
 
-        g.setColor(SYMBOL_COLOR);
-        ((Graphics2D) g).setStroke(new BasicStroke(SYMBOL_STROKE));
+        var g2d = (Graphics2D) g;
+        var screenScaledPartedCurve = scalePoints();
 
-        var screenScaledPoints = scalePoints();
-        var lastPoint = screenScaledPoints.get(0);
+        for (var continuousCurve : screenScaledPartedCurve) {
+            g2d.setStroke(SYMBOL_STROKE);
+            g2d.setColor(SYMBOL_COLOR);
+            CurvePainter.drawContinuousCurve(g2d, continuousCurve);
 
-        for (int i = 1; i < screenScaledPoints.size(); i++) {
-            var currentPoint = screenScaledPoints.get(i);
-            g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) currentPoint.x, (int) currentPoint.y);
-            lastPoint = currentPoint;
+            g2d.setStroke(SYMBOL_STROKE);
+            g2d.setColor(REPRESENTATIVE_POINT_COLOR);
+            CurvePainter.drawRepresentativePoints(g2d, continuousCurve, REPRESENTATIVE_POINT_RADIUS);
         }
     }
 
-    private List<Point> scalePoints() {
+    private List<List<Point>> scalePoints() {
         var center = new Point(getWidth() / 2.0, getHeight() / 2.0);
-        var scaleFactor = Math.min(getWidth(), getHeight()) * (0.5f - PADDING);
+        var scaleFactor = Math.min(getWidth(), getHeight()) * (0.5f - WINDOW_PADDING);
 
-        return normalizedPoints.stream()
-                .map(p -> p.scale(scaleFactor))
-                .map(p -> p.plus(center))
+        return normalizedPartedCurve.stream()
+                .map(part -> part.stream()
+                        .map(point -> point.scale(scaleFactor))
+                        .map(point -> point.plus(center))
+                        .collect(Collectors.toList()))
                 .collect(Collectors.toList());
     }
 }

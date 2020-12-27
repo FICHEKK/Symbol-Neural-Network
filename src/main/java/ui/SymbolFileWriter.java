@@ -3,6 +3,7 @@ package ui;
 import settings.Settings;
 import structures.Point;
 import ui.symbolCanvas.SymbolCanvasFinishListener;
+import util.CurveConverter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +12,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SymbolFileWriter implements SymbolCanvasFinishListener {
 
@@ -25,7 +25,7 @@ public class SymbolFileWriter implements SymbolCanvasFinishListener {
     }
 
     @Override
-    public void onNextSymbolFinish(List<Point> normalizedPoints) {
+    public void onNextSymbolFinish(List<List<Point>> partedCurve) {
         var directoryPath = Paths.get(
                 settings.getStringProperty(Settings.SYMBOL_SAVE_DIRECTORY),
                 settings.getStringProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS),
@@ -38,12 +38,7 @@ public class SymbolFileWriter implements SymbolCanvasFinishListener {
         try {
             Files.createDirectories(directoryPath);
             Files.createFile(filePath);
-            Files.write(
-                    filePath,
-                    normalizedPoints.stream()
-                            .map(point -> point.x + System.lineSeparator() + point.y)
-                            .collect(Collectors.toList())
-            );
+            Files.write(filePath, CurveConverter.serializePartedCurve(partedCurve));
         } catch (IOException e) {
             e.printStackTrace();
         }

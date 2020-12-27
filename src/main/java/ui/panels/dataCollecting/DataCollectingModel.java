@@ -5,13 +5,13 @@ import settings.SettingsListener;
 import structures.Point;
 import ui.panels.ModelListener;
 import ui.symbolCanvas.SymbolCanvasFinishListener;
+import util.CurveConverter;
 import util.DatasetLoader;
 import util.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DataCollectingModel implements SettingsListener, SymbolCanvasFinishListener {
@@ -99,21 +99,11 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
     }
 
     public void setSelectedSample(String selectedSample) {
-        var loadDirectory = settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY);
-        var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
-        var path = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints), selectedSymbolIdentifier, selectedSample);
-
         try {
-            var normalizedPoints = new ArrayList<Point>();
-            var lines = Files.readAllLines(path);
-
-            for (int i = 0; i < lines.size() / 2; i++) {
-                var x = Double.parseDouble(lines.get(i * 2));
-                var y = Double.parseDouble(lines.get(i * 2 + 1));
-                normalizedPoints.add(new Point(x, y));
-            }
-
-            notifySymbolViewChanged(normalizedPoints);
+            var loadDirectory = settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY);
+            var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
+            var path = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints), selectedSymbolIdentifier, selectedSample);
+            notifySymbolViewChanged(CurveConverter.deserializePartedCurve(Files.readAllLines(path)));
         } catch (IOException exception) {
             exception.printStackTrace();
             notifySymbolViewChanged(null);
@@ -131,7 +121,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
     }
 
     @Override
-    public void onNextSymbolFinish(List<Point> normalizedPoints) {
+    public void onNextSymbolFinish(List<List<Point>> partedCurve) {
         var symbolIdentifier = settings.getStringProperty(Settings.SYMBOL_IDENTIFIER);
 
         if (symbolIdentifier.equals(selectedSymbolIdentifier)) {
@@ -193,8 +183,8 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
         listener.onNextState(new DataCollectingState.SingleSymbolTable(identifier, samples));
     }
 
-    private void notifySymbolViewChanged(List<Point> normalizedPoints) {
-        listener.onNextState(new DataCollectingState.SymbolView(normalizedPoints));
+    private void notifySymbolViewChanged(List<List<Point>> partedCurve) {
+        listener.onNextState(new DataCollectingState.SymbolView(partedCurve));
     }
 
     private void notifySymbolIdentifierChanged() {

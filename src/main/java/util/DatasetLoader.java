@@ -65,44 +65,16 @@ public class DatasetLoader {
         var samples = new ArrayList<double[]>();
 
         for (File symbolFile : symbolFiles) {
-            var lines = convertFileToLinesIfPossible(symbolFile, numberOfRepresentativePoints);
+            var lines = CurveConverter.convertFileToLinesIfPossible(symbolFile, numberOfRepresentativePoints);
             if (lines == null) continue;
 
-            var sample = convertLinesToSampleDataIfPossible(lines, symbolFile);
+            var sample = CurveConverter.convertLinesToSampleDataIfPossible(lines, symbolFile);
             if (sample == null) continue;
 
             samples.add(sample);
         }
 
         return samples;
-    }
-
-    private static List<String> convertFileToLinesIfPossible(File symbolFile, int numberOfRepresentativePoints) throws IOException {
-        var lines = Files.readAllLines(symbolFile.toPath());
-
-        if (lines.size() != numberOfRepresentativePoints * 2) {
-            System.err.println("Corrupted symbol pattern file '" + symbolFile.getAbsolutePath() + "':");
-            System.err.println("Does not contain " + numberOfRepresentativePoints + " points.");
-            return null;
-        }
-
-        return lines;
-    }
-
-    private static double[] convertLinesToSampleDataIfPossible(List<String> lines, File symbolFile) {
-        var sample = new double[lines.size()];
-
-        for (int i = 0; i < lines.size(); i++) {
-            try {
-                sample[i] = Double.parseDouble(lines.get(i));
-            } catch (NumberFormatException exception) {
-                System.err.println("Corrupted symbol file '" + symbolFile.getAbsolutePath() + "':");
-                System.err.println("Line " + (i + 1) + " \"" + lines.get(i) + "\" not convertible to a double value.");
-                return null;
-            }
-        }
-
-        return sample;
     }
 
     public static Map<String, Integer> getSymbolToSampleCount(String loadDirectory, int numberOfRepresentativePoints) {

@@ -229,7 +229,7 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
     }
 
     private void renderSymbolView(DataCollectingState.SymbolView state) {
-        symbolView.setSymbol(state.normalizedPoints);
+        symbolView.setSymbol(state.partedCurve);
     }
 
     private void renderSymbolIdentifier(DataCollectingState.SymbolIdentifier state) {

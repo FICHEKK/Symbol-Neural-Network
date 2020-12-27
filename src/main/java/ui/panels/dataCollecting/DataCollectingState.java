@@ -42,10 +42,10 @@ public abstract class DataCollectingState {
     }
 
     public static class SymbolView extends DataCollectingState {
-        public final List<Point> normalizedPoints;
+        public final List<List<Point>> partedCurve;
 
-        public SymbolView(List<Point> normalizedPoints) {
-            this.normalizedPoints = normalizedPoints;
+        public SymbolView(List<List<Point>> partedCurve) {
+            this.partedCurve = partedCurve;
         }
     }
 
