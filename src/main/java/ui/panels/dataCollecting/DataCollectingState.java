@@ -33,19 +33,35 @@ public abstract class DataCollectingState {
 
     public static class SingleSymbolTable extends DataCollectingState {
         public final String identifier;
-        public final List<String> samples;
+        public final Map<String, Integer> sampleToPartCount;
 
-        public SingleSymbolTable(String identifier, List<String> samples) {
+        public SingleSymbolTable(String identifier, Map<String, Integer> sampleToPartCount) {
             this.identifier = identifier;
-            this.samples = samples;
+            this.sampleToPartCount = sampleToPartCount;
         }
     }
 
-    public static class SymbolView extends DataCollectingState {
+    public static class SymbolViewPartedCurve extends DataCollectingState {
         public final List<List<Point>> partedCurve;
 
-        public SymbolView(List<List<Point>> partedCurve) {
+        public SymbolViewPartedCurve(List<List<Point>> partedCurve) {
             this.partedCurve = partedCurve;
+        }
+    }
+
+    public static class SymbolViewShowContinuousCurveIndex extends DataCollectingState {
+        public final boolean showContinuousCurveIndex;
+
+        public SymbolViewShowContinuousCurveIndex(boolean showContinuousCurveIndex) {
+            this.showContinuousCurveIndex = showContinuousCurveIndex;
+        }
+    }
+
+    public static class SymbolViewShowRepresentativePoints extends DataCollectingState {
+        public final boolean showRepresentativePoints;
+
+        public SymbolViewShowRepresentativePoints(boolean showRepresentativePoints) {
+            this.showRepresentativePoints = showRepresentativePoints;
         }
     }
 

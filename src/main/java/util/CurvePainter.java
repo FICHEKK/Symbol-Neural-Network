@@ -25,6 +25,20 @@ public final class CurvePainter {
         }
     }
 
+    public static void drawColorInterpolatedContinuousCurve(Graphics2D g, List<Point> continuousCurve, Color start, Color end) {
+        if (continuousCurve == null || continuousCurve.size() < MIN_POINT_COUNT_FOR_PAINTING) return;
+
+        var lastPoint = continuousCurve.get(FIRST);
+
+        for (int i = 1; i < continuousCurve.size(); i++) {
+            var currentPoint = continuousCurve.get(i);
+
+            g.setColor(ColorUtils.interpolateHSB(start, end, (i - 1f) / (continuousCurve.size() - 2)));
+            g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) currentPoint.x, (int) currentPoint.y);
+            lastPoint = currentPoint;
+        }
+    }
+
     public static void drawRepresentativePoints(Graphics2D g, List<Point> dots, int radius) {
         final int diameter = 2 * radius;
 

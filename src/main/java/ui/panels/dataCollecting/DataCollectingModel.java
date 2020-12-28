@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 public class DataCollectingModel implements SettingsListener, SymbolCanvasFinishListener {
 
@@ -46,7 +47,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
 
         notifyAllSymbolsTableChanged();
         notifySingleSymbolTableChanged(null, null);
-        notifySymbolViewChanged(null);
+        notifySymbolViewPartedCurveChanged(null);
     }
 
     public void deleteSamples(List<String> samples) throws IOException {
@@ -60,7 +61,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
 
         notifyAllSymbolsTableChanged();
         updateSingleSymbolTable();
-        notifySymbolViewChanged(null);
+        notifySymbolViewPartedCurveChanged(null);
     }
 
     // =============================================================================================
@@ -103,15 +104,15 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
             var loadDirectory = settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY);
             var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
             var path = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints), selectedSymbolIdentifier, selectedSample);
-            notifySymbolViewChanged(CurveConverter.deserializePartedCurve(Files.readAllLines(path)));
+            notifySymbolViewPartedCurveChanged(CurveConverter.deserializePartedCurve(Files.readAllLines(path)));
         } catch (IOException exception) {
             exception.printStackTrace();
-            notifySymbolViewChanged(null);
+            notifySymbolViewPartedCurveChanged(null);
         }
     }
 
     private void updateSingleSymbolTable() {
-        var samples = DatasetLoader.getSymbolSamples(
+        var samples = DatasetLoader.getSampleToPartCount(
                 settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY),
                 settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS),
                 selectedSymbolIdentifier
@@ -142,13 +143,25 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
                 notifySymbolCanvasChanged();
                 notifyAllSymbolsTableChanged();
                 notifySingleSymbolTableChanged(null, null);
-                notifySymbolViewChanged(null);
+                notifySymbolViewPartedCurveChanged(null);
                 break;
 
             case Settings.SYMBOL_LOAD_DIRECTORY:
                 notifyAllSymbolsTableChanged();
                 notifySingleSymbolTableChanged(null, null);
-                notifySymbolViewChanged(null);
+                notifySymbolViewPartedCurveChanged(null);
+                break;
+
+            case Settings.SHOW_CONTINUOUS_CURVE_INDEX_IN_SYMBOL_VIEW:
+                listener.onNextState(new DataCollectingState.SymbolViewShowContinuousCurveIndex(
+                        settings.getBooleanProperty(Settings.SHOW_CONTINUOUS_CURVE_INDEX_IN_SYMBOL_VIEW)
+                ));
+                break;
+
+            case Settings.SHOW_REPRESENTATIVE_POINTS_IN_SYMBOL_VIEW:
+                listener.onNextState(new DataCollectingState.SymbolViewShowRepresentativePoints(
+                        settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_IN_SYMBOL_VIEW)
+                ));
                 break;
         }
     }
@@ -179,12 +192,12 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
         ));
     }
 
-    private void notifySingleSymbolTableChanged(String identifier, List<String> samples) {
-        listener.onNextState(new DataCollectingState.SingleSymbolTable(identifier, samples));
+    private void notifySingleSymbolTableChanged(String identifier, Map<String, Integer> sampleToPartCount) {
+        listener.onNextState(new DataCollectingState.SingleSymbolTable(identifier, sampleToPartCount));
     }
 
-    private void notifySymbolViewChanged(List<List<Point>> partedCurve) {
-        listener.onNextState(new DataCollectingState.SymbolView(partedCurve));
+    private void notifySymbolViewPartedCurveChanged(List<List<Point>> partedCurve) {
+        listener.onNextState(new DataCollectingState.SymbolViewPartedCurve(partedCurve));
     }
 
     private void notifySymbolIdentifierChanged() {

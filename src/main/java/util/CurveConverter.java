@@ -93,4 +93,16 @@ public final class CurveConverter {
 
         return pointCount / 2;
     }
+
+    public static int countParts(List<String> lines) {
+        for (var i = lines.size() - 1; i >= 0; i--) {
+            var line = lines.get(i);
+
+            if (line.startsWith(CONTINUOUS_CURVE_PREFIX)) {
+                return Integer.parseInt(line.substring(CONTINUOUS_CURVE_PREFIX.length())) + 1;
+            }
+        }
+
+        return -1;
+    }
 }

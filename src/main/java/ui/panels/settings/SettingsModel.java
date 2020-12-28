@@ -12,6 +12,8 @@ public class SettingsModel {
     private String numberOfRepresentativePoints;
     private String symbolSaveDirectory;
     private boolean showRepresentativePointsWhileDataCollecting;
+    private boolean showContinuousCurveIndexInSymbolView;
+    private boolean showRepresentativePointsInSymbolView;
     private String symbolLoadDirectory;
     private boolean useRandomWeightColors;
     private boolean showRepresentativePointsWhilePredicting;
@@ -26,6 +28,8 @@ public class SettingsModel {
         numberOfRepresentativePoints = settings.getStringProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
         symbolSaveDirectory = settings.getStringProperty(Settings.SYMBOL_SAVE_DIRECTORY);
         showRepresentativePointsWhileDataCollecting = settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING);
+        showContinuousCurveIndexInSymbolView = settings.getBooleanProperty(Settings.SHOW_CONTINUOUS_CURVE_INDEX_IN_SYMBOL_VIEW);
+        showRepresentativePointsInSymbolView = settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_IN_SYMBOL_VIEW);
         symbolLoadDirectory = settings.getStringProperty(Settings.SYMBOL_LOAD_DIRECTORY);
         useRandomWeightColors = settings.getBooleanProperty(Settings.USE_RANDOM_WEIGHT_COLORS);
         showRepresentativePointsWhilePredicting = settings.getBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_PREDICTING);
@@ -58,6 +62,14 @@ public class SettingsModel {
 
     public boolean isShowRepresentativePointsWhileDataCollecting() {
         return showRepresentativePointsWhileDataCollecting;
+    }
+
+    public boolean isShowContinuousCurveIndexInSymbolView() {
+        return showContinuousCurveIndexInSymbolView;
+    }
+
+    public boolean isShowRepresentativePointsInSymbolView() {
+        return showRepresentativePointsInSymbolView;
     }
 
     public String getSymbolLoadDirectory() {
@@ -103,6 +115,16 @@ public class SettingsModel {
     public void setShowRepresentativePointsWhileDataCollecting(boolean showRepresentativePointsWhileDataCollecting) {
         this.showRepresentativePointsWhileDataCollecting = showRepresentativePointsWhileDataCollecting;
         settings.setBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_WHILE_DATA_COLLECTING, showRepresentativePointsWhileDataCollecting);
+    }
+
+    public void setShowContinuousCurveIndexInSymbolView(boolean showContinuousCurveIndexInSymbolView) {
+        this.showContinuousCurveIndexInSymbolView = showContinuousCurveIndexInSymbolView;
+        settings.setBooleanProperty(Settings.SHOW_CONTINUOUS_CURVE_INDEX_IN_SYMBOL_VIEW, showContinuousCurveIndexInSymbolView);
+    }
+
+    public void setShowRepresentativePointsInSymbolView(boolean showRepresentativePointsInSymbolView) {
+        this.showRepresentativePointsInSymbolView = showRepresentativePointsInSymbolView;
+        settings.setBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_IN_SYMBOL_VIEW, showRepresentativePointsInSymbolView);
     }
 
     public void setSymbolLoadDirectory(String symbolLoadDirectory) {

@@ -28,10 +28,16 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
     private static final int DELETE_SAMPLE_LIST_LIMIT = 10;
 
     private static final int TABLE_WIDTH = 300;
+
     private static final int SYMBOL_IDENTIFIER_COLUMN_INDEX = 0;
     private static final int SYMBOL_IDENTIFIER_COLUMN_WIDTH = TABLE_WIDTH * 2 / 5;
     private static final int SYMBOL_COUNT_COLUMN_INDEX = 1;
     private static final int SYMBOL_COUNT_COLUMN_WIDTH = TABLE_WIDTH * 2 / 5;
+
+    private static final int SAMPLE_COLUMN_INDEX = 0;
+    private static final int SAMPLE_COLUMN_WIDTH = TABLE_WIDTH * 4 / 5;
+    private static final int PART_COUNT_COLUMN_INDEX = 1;
+    private static final int PART_COUNT_COLUMN_WIDTH = TABLE_WIDTH / 5;
 
     private final SymbolCanvas symbolCanvas = new SymbolCanvas();
     private final JTable allSymbolsTable = createTable(3);
@@ -174,8 +180,14 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
         else if (state instanceof DataCollectingState.SingleSymbolTable) {
             renderSingleSymbolTable((DataCollectingState.SingleSymbolTable) state);
         }
-        else if (state instanceof DataCollectingState.SymbolView) {
-            renderSymbolView((DataCollectingState.SymbolView) state);
+        else if (state instanceof DataCollectingState.SymbolViewPartedCurve) {
+            symbolView.setSymbol(((DataCollectingState.SymbolViewPartedCurve) state).partedCurve);
+        }
+        else if (state instanceof DataCollectingState.SymbolViewShowContinuousCurveIndex) {
+            symbolView.setShowContinuousCurveIndex(((DataCollectingState.SymbolViewShowContinuousCurveIndex) state).showContinuousCurveIndex);
+        }
+        else if (state instanceof DataCollectingState.SymbolViewShowRepresentativePoints) {
+            symbolView.setShowRepresentativePoints(((DataCollectingState.SymbolViewShowRepresentativePoints) state).showRepresentativePoints);
         }
         else if (state instanceof DataCollectingState.SymbolIdentifier) {
             renderSymbolIdentifier((DataCollectingState.SymbolIdentifier) state);
@@ -205,7 +217,6 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
         }
 
         ((DefaultTableModel) allSymbolsTable.getModel()).setDataVector(rowData, header);
-
         allSymbolsTable.getColumnModel().getColumn(SYMBOL_IDENTIFIER_COLUMN_INDEX).setPreferredWidth(SYMBOL_IDENTIFIER_COLUMN_WIDTH);
         allSymbolsTable.getColumnModel().getColumn(SYMBOL_COUNT_COLUMN_INDEX).setPreferredWidth(SYMBOL_COUNT_COLUMN_WIDTH);
     }
@@ -218,18 +229,20 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
             return;
         }
 
-        var sampleCount = state.samples.size();
+        var sampleCount = state.sampleToPartCount.size();
         var rowData = new Object[sampleCount][];
 
-        for (int i = 0; i < sampleCount; i++) {
-            rowData[i] = new Object[]{state.samples.get(i)};
+        var i = 0;
+
+        for (var samplePartCountPair : state.sampleToPartCount.entrySet()) {
+            var sample = samplePartCountPair.getKey();
+            var partCount = samplePartCountPair.getValue();
+            rowData[i++] = new Object[] {sample, partCount};
         }
 
-        model.setDataVector(rowData, new String[] { state.identifier });
-    }
-
-    private void renderSymbolView(DataCollectingState.SymbolView state) {
-        symbolView.setSymbol(state.partedCurve);
+        model.setDataVector(rowData, new String[] { state.identifier, "# of parts" });
+        singleSymbolTable.getColumnModel().getColumn(SAMPLE_COLUMN_INDEX).setPreferredWidth(SAMPLE_COLUMN_WIDTH);
+        singleSymbolTable.getColumnModel().getColumn(PART_COUNT_COLUMN_INDEX).setPreferredWidth(PART_COUNT_COLUMN_WIDTH);
     }
 
     private void renderSymbolIdentifier(DataCollectingState.SymbolIdentifier state) {

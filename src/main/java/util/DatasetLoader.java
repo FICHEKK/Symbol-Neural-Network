@@ -93,17 +93,26 @@ public class DatasetLoader {
         return sampleToCount;
     }
 
-    public static List<String> getSymbolSamples(String loadDirectory, int numberOfRepresentativePoints, String identifier) {
+    public static Map<String, Integer> getSampleToPartCount(String loadDirectory, int numberOfRepresentativePoints, String identifier) {
         var path = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints), identifier);
-        var samples = new ArrayList<String>();
-        if (Files.notExists(path)) return samples;
+        var sampleToPartCount = new LinkedHashMap<String, Integer>();
+        if (Files.notExists(path)) return sampleToPartCount;
 
         var sampleFiles = new File(path.toString()).listFiles(File::isFile);
 
         for (var sampleFile : sampleFiles) {
-            samples.add(sampleFile.getName());
+            var sample = sampleFile.getName();
+            int partCount = 0;
+
+            try {
+                partCount = CurveConverter.countParts(Files.readAllLines(sampleFile.toPath()));
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+
+            sampleToPartCount.put(sample, partCount);
         }
 
-        return samples;
+        return sampleToPartCount;
     }
 }

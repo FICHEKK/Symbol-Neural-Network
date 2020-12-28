@@ -35,6 +35,12 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private final JLabel showRepresentativePointsWhileDataCollectingLabel = createLabel("Show representative points while data collecting:");
     private final JCheckBox showRepresentativePointsWhileDataCollectingCheckbox = new JCheckBox();
 
+    private final JLabel showContinuousCurveIndexInSymbolViewLabel = createLabel("Show continuous curve index in symbol view:");
+    private final JCheckBox showContinuousCurveIndexInSymbolViewCheckbox = new JCheckBox();
+
+    private final JLabel showRepresentativePointsInSymbolViewLabel = createLabel("Show representative points in symbol view:");
+    private final JCheckBox showRepresentativePointsInSymbolViewCheckbox = new JCheckBox();
+
     private final JLabel symbolLoadDirectoryLabel = createLabel("Symbol load directory:");
     private final JTextField symbolLoadDirectoryField = new JTextField();
 
@@ -60,6 +66,8 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
         numberOfRepresentativePointsField.setText(model.getNumberOfRepresentativePoints());
         symbolSaveDirectoryField.setText(model.getSymbolSaveDirectory());
         showRepresentativePointsWhileDataCollectingCheckbox.setSelected(model.isShowRepresentativePointsWhileDataCollecting());
+        showContinuousCurveIndexInSymbolViewCheckbox.setSelected(model.isShowContinuousCurveIndexInSymbolView());
+        showRepresentativePointsInSymbolViewCheckbox.setSelected(model.isShowRepresentativePointsInSymbolView());
         symbolLoadDirectoryField.setText(model.getSymbolLoadDirectory());
         useRandomWeightColorsCheckbox.setSelected(model.isUseRandomWeightColors());
         showRepresentativePointsWhilePredictingCheckbox.setSelected(model.isShowRepresentativePointsWhilePredicting());
@@ -109,6 +117,12 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
         panel.add(showRepresentativePointsWhileDataCollectingLabel);
         panel.add(showRepresentativePointsWhileDataCollectingCheckbox);
 
+        panel.add(showContinuousCurveIndexInSymbolViewLabel);
+        panel.add(showContinuousCurveIndexInSymbolViewCheckbox);
+
+        panel.add(showRepresentativePointsInSymbolViewLabel);
+        panel.add(showRepresentativePointsInSymbolViewCheckbox);
+
         numberOfRepresentativePointsField.getDocument().addDocumentListener((SimpleDocumentListener) e ->
                 model.setNumberOfRepresentativePoints(numberOfRepresentativePointsField.getText()));
 
@@ -117,6 +131,12 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
 
         showRepresentativePointsWhileDataCollectingCheckbox.addItemListener(e ->
                 model.setShowRepresentativePointsWhileDataCollecting(e.getStateChange() == ItemEvent.SELECTED));
+
+        showContinuousCurveIndexInSymbolViewCheckbox.addItemListener(e ->
+                model.setShowContinuousCurveIndexInSymbolView(e.getStateChange() == ItemEvent.SELECTED));
+
+        showRepresentativePointsInSymbolViewCheckbox.addItemListener(e ->
+                model.setShowRepresentativePointsInSymbolView(e.getStateChange() == ItemEvent.SELECTED));
 
         return panel;
     }
