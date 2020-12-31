@@ -2,10 +2,12 @@ package ui.views;
 
 import structures.Point;
 import util.ColorUtils;
+import util.CurveMeter;
 import util.CurvePainter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +29,18 @@ public class SymbolView extends JComponent {
     private boolean showContinuousCurveIndex;
     private boolean showRepresentativePoints;
 
-    public void setSymbol(List<List<Point>> normalizedPartedCurve) {
+    private SymbolAnimationWorker animationWorker;
+
+    public void animate(List<List<Point>> normalizedPartedCurve) {
+        if (animationWorker != null && !animationWorker.isDone()) {
+            animationWorker.cancel(true);
+        }
+
+        animationWorker = new SymbolAnimationWorker(this, normalizedPartedCurve);
+        animationWorker.execute();
+    }
+
+    private void setSymbol(List<List<Point>> normalizedPartedCurve) {
         this.normalizedPartedCurve = normalizedPartedCurve;
         repaint();
     }
@@ -51,8 +64,6 @@ public class SymbolView extends JComponent {
 
         var totalPointCount = getTotalPointCount();
         var currentPointCount = 0f;
-
-
         var scaledPartedCurve = getScaledPartedCurve();
 
         for (int index = 0; index < scaledPartedCurve.size(); index++) {
@@ -145,5 +156,66 @@ public class SymbolView extends JComponent {
                         .map(point -> point.plus(center))
                         .collect(Collectors.toList()))
                 .collect(Collectors.toList());
+    }
+
+    private static class SymbolAnimationWorker extends SwingWorker<Void, List<List<Point>>> {
+
+        private static final double VELOCITY = 0.005;
+
+        private final SymbolView symbolView;
+        private final List<List<Point>> partedCurve;
+
+        public SymbolAnimationWorker(SymbolView symbolView, List<List<Point>> partedCurve) {
+            super();
+            this.symbolView = symbolView;
+            this.partedCurve = partedCurve;
+        }
+
+        @Override
+        protected Void doInBackground() throws InterruptedException {
+            final List<List<Point>> partialPartedCurve = new ArrayList<>();
+
+            for (var continuousCurve : partedCurve) {
+                partialPartedCurve.add(new ArrayList<>());
+                var previousPoint = continuousCurve.get(0);
+
+                for (var i = 1; i < continuousCurve.size(); i++) {
+                    var currentPoint = continuousCurve.get(i);
+                    var distance = CurveMeter.distanceBetweenPoints(previousPoint, currentPoint);
+
+                    partialPartedCurve.get(partialPartedCurve.size() - 1).add(currentPoint);
+
+                    final var N = 10;
+                    final var lastPart = partialPartedCurve.get(partialPartedCurve.size() - 1);
+
+                    for (var j = 0; j < N; j++) {
+                        var t = (double) j / (N - 1);
+                        var x = (1 - t) * previousPoint.x + t * currentPoint.x;
+                        var y = (1 - t) * previousPoint.y + t * currentPoint.y;
+
+                        lastPart.set(lastPart.size() - 1, new Point(x, y));
+
+                        sleep(distance / (VELOCITY * N));
+                        publish(partialPartedCurve);
+                    }
+
+                    previousPoint = currentPoint;
+                }
+            }
+
+            return null;
+        }
+
+        private void sleep(double timeInMs) throws InterruptedException {
+            long millis = (long) timeInMs;
+            int nanos = (int) ((timeInMs - (double) millis) * 1_000_000);
+            Thread.sleep(millis, nanos);
+        }
+
+        @Override
+        protected void process(List<List<List<Point>>> chunks) {
+            var lastCurve = chunks.get(chunks.size() - 1);
+            symbolView.setSymbol(lastCurve);
+        }
     }
 }

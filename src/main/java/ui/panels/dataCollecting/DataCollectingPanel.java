@@ -181,7 +181,7 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
             renderSingleSymbolTable((DataCollectingState.SingleSymbolTable) state);
         }
         else if (state instanceof DataCollectingState.SymbolViewPartedCurve) {
-            symbolView.setSymbol(((DataCollectingState.SymbolViewPartedCurve) state).partedCurve);
+            symbolView.animate(((DataCollectingState.SymbolViewPartedCurve) state).partedCurve);
         }
         else if (state instanceof DataCollectingState.SymbolViewShowContinuousCurveIndex) {
             symbolView.setShowContinuousCurveIndex(((DataCollectingState.SymbolViewShowContinuousCurveIndex) state).showContinuousCurveIndex);
