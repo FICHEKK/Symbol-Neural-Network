@@ -4,6 +4,7 @@ import settings.Settings;
 import settings.SettingsImpl;
 import ui.panels.dataCollecting.DataCollectingPanel;
 import ui.panels.dataCollecting.DataCollectingModel;
+import ui.panels.help.HelpPanel;
 import ui.panels.predicting.PredictingModel;
 import ui.panels.predicting.PredictingPanel;
 import ui.panels.settings.SettingsPanel;
@@ -36,6 +37,8 @@ public class Application extends JFrame {
     private final SettingsModel settingsPanelModel = new SettingsModel(settings);
     private final SettingsPanel globalSettingsPanel = new SettingsPanel(settingsPanelModel);
 
+    private final HelpPanel helpPanel = new HelpPanel();
+
     private Application() {
         setTitle(WINDOW_TITLE);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -59,6 +62,7 @@ public class Application extends JFrame {
         tabbedPane.add("Training", trainingPanel);
         tabbedPane.add("Predicting", predictingPanel);
         tabbedPane.add("Settings", globalSettingsPanel);
+        tabbedPane.add("Help", helpPanel);
         add(tabbedPane);
     }
 
