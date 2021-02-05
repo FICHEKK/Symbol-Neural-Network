@@ -197,7 +197,10 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
     }
 
     private void notifySymbolViewPartedCurveChanged(List<List<Point>> partedCurve) {
-        listener.onNextState(new DataCollectingState.SymbolViewPartedCurve(partedCurve));
+        listener.onNextState(new DataCollectingState.SymbolViewPartedCurve(
+                partedCurve,
+                settings.getBooleanProperty(Settings.ANIMATE_SYMBOL_IN_SYMBOL_VIEW)
+        ));
     }
 
     private void notifySymbolIdentifierChanged() {

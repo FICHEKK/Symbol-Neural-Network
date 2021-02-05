@@ -72,6 +72,10 @@ public class SettingsModel {
         return showRepresentativePointsInSymbolView;
     }
 
+    public boolean animateSymbolInSymbolView() {
+        return settings.getBooleanProperty(Settings.ANIMATE_SYMBOL_IN_SYMBOL_VIEW);
+    }
+
     public String getSymbolLoadDirectory() {
         return symbolLoadDirectory;
     }
@@ -125,6 +129,10 @@ public class SettingsModel {
     public void setShowRepresentativePointsInSymbolView(boolean showRepresentativePointsInSymbolView) {
         this.showRepresentativePointsInSymbolView = showRepresentativePointsInSymbolView;
         settings.setBooleanProperty(Settings.SHOW_REPRESENTATIVE_POINTS_IN_SYMBOL_VIEW, showRepresentativePointsInSymbolView);
+    }
+
+    public void setAnimateSymbolInSymbolView(boolean animateSymbolInSymbolView) {
+        settings.setBooleanProperty(Settings.ANIMATE_SYMBOL_IN_SYMBOL_VIEW, animateSymbolInSymbolView);
     }
 
     public void setSymbolLoadDirectory(String symbolLoadDirectory) {

@@ -31,18 +31,18 @@ public class SymbolView extends JComponent {
 
     private SymbolAnimationWorker animationWorker;
 
-    public void animate(List<List<Point>> normalizedPartedCurve) {
+    public void setSymbol(List<List<Point>> normalizedPartedCurve) {
+        this.normalizedPartedCurve = normalizedPartedCurve;
+        repaint();
+    }
+
+    public void animateSymbol(List<List<Point>> normalizedPartedCurve) {
         if (animationWorker != null && !animationWorker.isDone()) {
             animationWorker.cancel(true);
         }
 
         animationWorker = new SymbolAnimationWorker(this, normalizedPartedCurve);
         animationWorker.execute();
-    }
-
-    private void setSymbol(List<List<Point>> normalizedPartedCurve) {
-        this.normalizedPartedCurve = normalizedPartedCurve;
-        repaint();
     }
 
     public void setShowContinuousCurveIndex(boolean showContinuousCurveIndex) {
@@ -178,6 +178,7 @@ public class SymbolView extends JComponent {
             for (var continuousCurve : partedCurve) {
                 partialPartedCurve.add(new ArrayList<>());
                 var previousPoint = continuousCurve.get(0);
+                partialPartedCurve.get(partialPartedCurve.size() - 1).add(previousPoint);
 
                 for (var i = 1; i < continuousCurve.size(); i++) {
                     var currentPoint = continuousCurve.get(i);

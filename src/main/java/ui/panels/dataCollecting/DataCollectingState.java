@@ -43,9 +43,11 @@ public abstract class DataCollectingState {
 
     public static class SymbolViewPartedCurve extends DataCollectingState {
         public final List<List<Point>> partedCurve;
+        public final boolean animate;
 
-        public SymbolViewPartedCurve(List<List<Point>> partedCurve) {
+        public SymbolViewPartedCurve(List<List<Point>> partedCurve, boolean animate) {
             this.partedCurve = partedCurve;
+            this.animate = animate;
         }
     }
 

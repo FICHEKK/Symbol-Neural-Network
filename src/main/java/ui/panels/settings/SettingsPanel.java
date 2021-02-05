@@ -41,6 +41,9 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private final JLabel showRepresentativePointsInSymbolViewLabel = createLabel("Show representative points in symbol view:");
     private final JCheckBox showRepresentativePointsInSymbolViewCheckbox = new JCheckBox();
 
+    private final JLabel animateSymbolInSymbolViewLabel = createLabel("Animate symbol in symbol view:");
+    private final JCheckBox animateSymbolInSymbolViewCheckbox = new JCheckBox();
+
     private final JLabel symbolLoadDirectoryLabel = createLabel("Symbol load directory:");
     private final JTextField symbolLoadDirectoryField = new JTextField();
 
@@ -68,6 +71,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
         showRepresentativePointsWhileDataCollectingCheckbox.setSelected(model.isShowRepresentativePointsWhileDataCollecting());
         showContinuousCurveIndexInSymbolViewCheckbox.setSelected(model.isShowContinuousCurveIndexInSymbolView());
         showRepresentativePointsInSymbolViewCheckbox.setSelected(model.isShowRepresentativePointsInSymbolView());
+        animateSymbolInSymbolViewCheckbox.setSelected(model.animateSymbolInSymbolView());
         symbolLoadDirectoryField.setText(model.getSymbolLoadDirectory());
         useRandomWeightColorsCheckbox.setSelected(model.isUseRandomWeightColors());
         showRepresentativePointsWhilePredictingCheckbox.setSelected(model.isShowRepresentativePointsWhilePredicting());
@@ -123,6 +127,9 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
         panel.add(showRepresentativePointsInSymbolViewLabel);
         panel.add(showRepresentativePointsInSymbolViewCheckbox);
 
+        panel.add(animateSymbolInSymbolViewLabel);
+        panel.add(animateSymbolInSymbolViewCheckbox);
+
         numberOfRepresentativePointsField.getDocument().addDocumentListener((SimpleDocumentListener) e ->
                 model.setNumberOfRepresentativePoints(numberOfRepresentativePointsField.getText()));
 
@@ -137,6 +144,9 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
 
         showRepresentativePointsInSymbolViewCheckbox.addItemListener(e ->
                 model.setShowRepresentativePointsInSymbolView(e.getStateChange() == ItemEvent.SELECTED));
+
+        animateSymbolInSymbolViewCheckbox.addItemListener(e ->
+                model.setAnimateSymbolInSymbolView(e.getStateChange() == ItemEvent.SELECTED));
 
         return panel;
     }

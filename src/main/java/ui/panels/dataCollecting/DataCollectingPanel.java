@@ -181,7 +181,7 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
             renderSingleSymbolTable((DataCollectingState.SingleSymbolTable) state);
         }
         else if (state instanceof DataCollectingState.SymbolViewPartedCurve) {
-            symbolView.animate(((DataCollectingState.SymbolViewPartedCurve) state).partedCurve);
+            renderPartedCurve((DataCollectingState.SymbolViewPartedCurve) state);
         }
         else if (state instanceof DataCollectingState.SymbolViewShowContinuousCurveIndex) {
             symbolView.setShowContinuousCurveIndex(((DataCollectingState.SymbolViewShowContinuousCurveIndex) state).showContinuousCurveIndex);
@@ -243,6 +243,15 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
         model.setDataVector(rowData, new String[] { state.identifier, "# of parts" });
         singleSymbolTable.getColumnModel().getColumn(SAMPLE_COLUMN_INDEX).setPreferredWidth(SAMPLE_COLUMN_WIDTH);
         singleSymbolTable.getColumnModel().getColumn(PART_COUNT_COLUMN_INDEX).setPreferredWidth(PART_COUNT_COLUMN_WIDTH);
+    }
+
+    private void renderPartedCurve(DataCollectingState.SymbolViewPartedCurve state) {
+        if (state.animate) {
+            symbolView.animateSymbol(state.partedCurve);
+        }
+        else {
+            symbolView.setSymbol(state.partedCurve);
+        }
     }
 
     private void renderSymbolIdentifier(DataCollectingState.SymbolIdentifier state) {
