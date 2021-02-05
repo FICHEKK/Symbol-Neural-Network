@@ -4,6 +4,7 @@ import math.Matrix;
 import math.Vector;
 import network.activation.ActivationFunction;
 import network.initializers.WeightInitializer;
+import structures.Dataset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +44,17 @@ public class NeuralNetwork {
         initializer.initializeBiases(biases, layers);
     }
 
-    public void fit(double[][] X, double[][] Y) {
-        if (X.length != Y.length) throw new IllegalArgumentException("X.length != Y.length");
-
+    public void fit(Dataset dataset) {
         int i, sampleIndex = 0;
 
         for (i = 1; i <= maxIterations; i++) {
+            dataset.shuffle();
             resetDeltaWeightsAndBiases();
 
             for (int j = 0; j < batchSize; j++) {
-                calculateOutputLayerError(Y[sampleIndex], predict(X[sampleIndex]));
+                var actual = dataset.getY(sampleIndex);
+                var prediction = predict(dataset.getX(sampleIndex));
+                calculateOutputLayerError(actual, prediction);
 
                 for (int layer = errors.length - 2; layer >= 1; layer--) {
                     calculateHiddenLayerError(layer);
@@ -63,12 +65,12 @@ public class NeuralNetwork {
                     calculateDeltaBiases(layer);
                 }
 
-                sampleIndex = (sampleIndex + 1) % X.length;
+                sampleIndex = (sampleIndex + 1) % dataset.size();
             }
 
             updateWeightsAndBiases();
 
-            final var error = calculateNetworkError(X, Y);
+            final var error = calculateError(dataset);
 
             if (!fitUpdateListeners.isEmpty()) {
                 final var iteration = i;
@@ -93,22 +95,24 @@ public class NeuralNetwork {
         return input.toArray();
     }
 
-    public double calculateNetworkError(double[][] X, double[][] y) {
+    public double calculateError(Dataset dataset) {
         var error = 0.0;
-        var N = X.length;
+        var N = dataset.size();
 
         for (int i = 0; i < N; i++) {
-            error += calculateSampleError(y[i], predict(X[i]));
+            var actual = dataset.getY(i);
+            var prediction = predict(dataset.getX(i));
+            error += calculateError(actual, prediction);
         }
 
         return 1.0 / (2 * N) * error;
     }
 
-    public double calculateSampleError(double[] y, double[] prediction) {
+    public double calculateError(double[] actual, double[] prediction) {
         double error = 0.0;
 
-        for (int i = 0; i < y.length; i++) {
-            var delta = y[i] - prediction[i];
+        for (int i = 0; i < actual.length; i++) {
+            var delta = actual[i] - prediction[i];
             error += delta * delta;
         }
 
@@ -125,37 +129,43 @@ public class NeuralNetwork {
     private void calculateDeltaWeights(int layer) {
         var rows = weights[layer].getRows();
         var cols = weights[layer].getColumns();
-        var dW = deltaWeights[layer];
+        var deltaWeights = this.deltaWeights[layer];
 
         for (int col = 0; col < cols; col++) {
             for (int row = 0; row < rows; row++) {
+                var currentDeltaWeight = deltaWeights.get(row, col);
+
                 var neuronOutput = outputs[layer].get(col);
                 var neuronError = errors[layer + 1].get(row);
-                dW.set(row, col, dW.get(row, col) + learningRate * neuronOutput * neuronError);
+                var additionalDeltaWeight = learningRate * neuronOutput * neuronError;
+
+                deltaWeights.set(row, col, currentDeltaWeight + additionalDeltaWeight);
             }
         }
     }
 
     private void calculateDeltaBiases(int layer) {
         int neuronsInLayer = layers[layer + 1];
-        var dB = deltaBiases[layer];
+        var deltaBiases = this.deltaBiases[layer];
 
         for (int i = 0; i < neuronsInLayer; i++) {
-            dB.set(i, dB.get(i) + learningRate * errors[layer + 1].get(i));
+            var currentDeltaBias = deltaBiases.get(i);
+            var additionalDeltaBias = learningRate * errors[layer + 1].get(i);
+            deltaBiases.set(i, currentDeltaBias + additionalDeltaBias);
         }
     }
 
     private void calculateHiddenLayerError(int layer) {
         var neuronErrors = new double[layers[layer]];
-        var W = weights[layer];
-        var rows = W.getRows();
+        var weights = this.weights[layer];
+        var rows = weights.getRows();
 
         for (int i = 0; i < neuronErrors.length; i++) {
             var neuronOutput = outputs[layer].get(i);
 
             double error = 0.0;
             for (int row = 0; row < rows; row++) {
-                error += W.get(row, i) * errors[layer + 1].get(row);
+                error += weights.get(row, i) * errors[layer + 1].get(row);
             }
 
             neuronErrors[i] = neuronOutput * (1 - neuronOutput) * error;
@@ -164,11 +174,11 @@ public class NeuralNetwork {
         errors[layer] = Vector.of(neuronErrors);
     }
 
-    private void calculateOutputLayerError(double[] y, double[] prediction) {
-        double[] neuronErrors = new double[y.length];
+    private void calculateOutputLayerError(double[] actual, double[] prediction) {
+        double[] neuronErrors = new double[actual.length];
 
         for (int i = 0; i < neuronErrors.length; i++) {
-            neuronErrors[i] = prediction[i] * (1 - prediction[i]) * (y[i] - prediction[i]);
+            neuronErrors[i] = prediction[i] * (1 - prediction[i]) * (actual[i] - prediction[i]);
         }
 
         errors[errors.length - 1] = Vector.of(neuronErrors);

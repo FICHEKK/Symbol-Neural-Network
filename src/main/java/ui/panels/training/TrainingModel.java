@@ -82,11 +82,7 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
                 var numberOfRepresentativePoints = settings.getIntProperty(NUMBER_OF_REPRESENTATIVE_POINTS);
 
                 var dataset = DatasetLoader.loadDataset(loadDirectory, numberOfRepresentativePoints)
-                        .expand(settings.getIntProperty(ADDITIONAL_PERMUTATIONS_PER_SAMPLE))
-                        .shuffle();
-
-                if (dataset.X.length == 0)
-                    throw new IOException("You need dataset in order to train a neural network.");
+                        .expand(settings.getIntProperty(ADDITIONAL_PERMUTATIONS_PER_SAMPLE));
 
                 neuralNetwork = createNeuralNetwork(dataset);
                 listeners.forEach(listener -> listener.onNeuralNetworkChange(neuralNetwork));
@@ -102,7 +98,7 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
                 neuralNetwork.addFitFinishListener(finishListener);
                 neuralNetwork.addFitUpdateListener(updateListener);
 
-                neuralNetwork.fit(dataset.X, dataset.Y);
+                neuralNetwork.fit(dataset);
 
                 neuralNetwork.removeFitFinishListener(finishListener);
                 neuralNetwork.removeFitUpdateListener(updateListener);
@@ -220,12 +216,12 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
     private int getBatchSize(Dataset dataset) {
         if (trainingMethod == TrainingMethod.STOCHASTIC) return 1;
         if (trainingMethod == TrainingMethod.MINI_BATCH) return Integer.parseInt(miniBatchSize);
-        return dataset.X.length;
+        return dataset.size();
     }
 
     private int[] calculateNetworkLayers(Dataset dataset) {
-        var inputNeurons = dataset.X[0].length;
-        var outputNeurons = dataset.Y[0].length;
+        var inputNeurons = dataset.getInputDimension();
+        var outputNeurons = dataset.getOutputDimension();
         var hiddenLayers = hiddenLayersDefinition.split(HIDDEN_LAYERS_DEFINITION_SEPARATOR);
 
         int[] layers = new int[hiddenLayers.length + 2];

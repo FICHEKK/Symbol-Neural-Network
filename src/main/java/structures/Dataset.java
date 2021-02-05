@@ -6,27 +6,46 @@ public class Dataset {
 
     private static final Random RANDOM = new Random();
 
-    public final double[][] X;
-    public final double[][] Y;
+    private final double[][] X;
+    private final double[][] Y;
 
     public Dataset(double[][] X, double[][] Y) {
         if (X.length != Y.length)
             throw new IllegalArgumentException("X.length != Y.length");
 
+        if (X.length == 0)
+            throw new IllegalArgumentException("Dataset must contain at least one entry.");
+
         this.X = X;
         this.Y = Y;
     }
 
-    public Dataset shuffle() {
-        var rows = X.length;
+    public int size() {
+        return X.length;
+    }
 
-        for (int i = rows - 1; i > 0; i--) {
+    public int getInputDimension() {
+        return X[0].length;
+    }
+
+    public int getOutputDimension() {
+        return Y[0].length;
+    }
+
+    public double[] getX(int index) {
+        return X[index];
+    }
+
+    public double[] getY(int index) {
+        return Y[index];
+    }
+
+    public void shuffle() {
+        for (int i = size() - 1; i > 0; i--) {
             int r = RANDOM.nextInt(i + 1);
             swapMatrixRows(X, i, r);
             swapMatrixRows(Y, i, r);
         }
-
-        return this;
     }
 
     public Dataset expand(int additionalPermutationsPerSample) {
