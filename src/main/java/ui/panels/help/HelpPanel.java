@@ -152,6 +152,8 @@ public class HelpPanel extends JPanel {
                 "When turned on, symbol view (window in the bottom right corner) will display in what order the parts of the symbol were drawn, starting from index 0.",
                 title("Show representative points in symbol view"),
                 "When turned on, representative points will be shown in symbol view window.",
+                title("Animate symbol in symbol view"),
+                "When turned on, symbol view will animate symbol's drawing process in the exact same way as it was originally done by the artist.",
 
                 title("<font color='" + BORDER_COLOR_HEX + "'>Training:</font>"),
                 title("Symbol load directory"),
