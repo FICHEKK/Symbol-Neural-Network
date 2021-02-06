@@ -49,7 +49,12 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
     private final JComboBox<WeightsDrawingMode> weightsDrawingModeComboBox = new JComboBox<>();
 
     private final JLabel trainingStatusLabel = createLabel("");
-    private final JButton trainNeuralNetworkButton = new JButton("Train neural network");
+
+    private static final String TRAIN_BUTTON_START_TEXT = "Train neural network";
+    private static final Color TRAIN_BUTTON_START_COLOR = new Color(0, 22, 57, 255);
+    private static final String TRAIN_BUTTON_STOP_TEXT = "Stop training neural network";
+    private static final Color TRAIN_BUTTON_STOP_COLOR = Color.RED;
+    private final JButton trainNeuralNetworkButton = new JButton();
 
     private final TrainingModel model;
 
@@ -69,6 +74,7 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         weightsDrawingModeComboBox.setSelectedItem(model.getWeightsDrawingMode());
         neuralNetworkView.setDrawingMode(model.getWeightsDrawingMode());
         neuralNetworkView.setUseRandomColors(model.getUseRandomWeightColors());
+        trainNeuralNetworkButton.setForeground(Color.WHITE);
 
         setLayout(new BorderLayout());
 
@@ -156,8 +162,7 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         trainNeuralNetworkButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                trainNeuralNetworkButton.setEnabled(false);
-                model.trainNeuralNetwork();
+                model.handleTrainButtonClick();
             }
         });
 
@@ -184,6 +189,9 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         else if (state instanceof TrainingState.FitStatus) {
             renderFitStatus((TrainingState.FitStatus) state);
         }
+        else if (state instanceof TrainingState.TrainButton) {
+            renderTrainButton((TrainingState.TrainButton) state);
+        }
     }
 
     private void renderSettings(TrainingState.Settings state) {
@@ -197,11 +205,18 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
             maxIterationsLabel.setForeground(state.isMaximumNumberOfIterationsValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
             additionalPermutationsPerSampleLabel.setForeground(state.isAdditionalPermutationsPerSampleValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
             neuralNetworkView.setUseRandomColors(state.useRandomWeightColors);
-            trainNeuralNetworkButton.setEnabled(state.isTrainNeuralNetworkButtonEnabled);
         });
     }
 
     private void renderFitStatus(TrainingState.FitStatus state) {
         SwingUtilities.invokeLater(() -> trainingStatusLabel.setText("Iterations: " + state.iteration + " | Error: " + state.error));
+    }
+
+    private void renderTrainButton(TrainingState.TrainButton state) {
+        SwingUtilities.invokeLater(() -> {
+            trainNeuralNetworkButton.setEnabled(state.isNetworkBeingFitted || state.isEverySettingValid);
+            trainNeuralNetworkButton.setText(state.isNetworkBeingFitted ? TRAIN_BUTTON_STOP_TEXT : TRAIN_BUTTON_START_TEXT);
+            trainNeuralNetworkButton.setBackground(state.isNetworkBeingFitted ? TRAIN_BUTTON_STOP_COLOR : TRAIN_BUTTON_START_COLOR);
+        });
     }
 }

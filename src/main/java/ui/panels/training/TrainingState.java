@@ -20,18 +20,16 @@ public abstract class TrainingState {
         public final boolean isMaximumNumberOfIterationsValid;
         public final boolean isAdditionalPermutationsPerSampleValid;
         public final boolean isMiniBatchSectionEnabled;
-        public final boolean isTrainNeuralNetworkButtonEnabled;
         public final boolean useRandomWeightColors;
 
         public Settings(boolean isMiniBatchSizeValid,
-                                          boolean isHiddenLayersDefinitionValid,
-                                          boolean isLearningRateValid,
-                                          boolean isMinimumAcceptableErrorValid,
-                                          boolean isMaximumNumberOfIterationsValid,
-                                          boolean isAdditionalPermutationsPerSampleValid,
-                                          boolean isMiniBatchSectionEnabled,
-                                          boolean isTrainNeuralNetworkButtonEnabled,
-                                          boolean useRandomWeightColors) {
+                        boolean isHiddenLayersDefinitionValid,
+                        boolean isLearningRateValid,
+                        boolean isMinimumAcceptableErrorValid,
+                        boolean isMaximumNumberOfIterationsValid,
+                        boolean isAdditionalPermutationsPerSampleValid,
+                        boolean isMiniBatchSectionEnabled,
+                        boolean useRandomWeightColors) {
             this.isMiniBatchSizeValid = isMiniBatchSizeValid;
             this.isHiddenLayersDefinitionValid = isHiddenLayersDefinitionValid;
             this.isLearningRateValid = isLearningRateValid;
@@ -39,8 +37,17 @@ public abstract class TrainingState {
             this.isMaximumNumberOfIterationsValid = isMaximumNumberOfIterationsValid;
             this.isAdditionalPermutationsPerSampleValid = isAdditionalPermutationsPerSampleValid;
             this.isMiniBatchSectionEnabled = isMiniBatchSectionEnabled;
-            this.isTrainNeuralNetworkButtonEnabled = isTrainNeuralNetworkButtonEnabled;
             this.useRandomWeightColors = useRandomWeightColors;
+        }
+    }
+
+    public static class TrainButton extends TrainingState {
+        public final boolean isNetworkBeingFitted;
+        public final boolean isEverySettingValid;
+
+        public TrainButton(boolean isNetworkBeingFitted, boolean isEverySettingValid) {
+            this.isNetworkBeingFitted = isNetworkBeingFitted;
+            this.isEverySettingValid = isEverySettingValid;
         }
     }
 }

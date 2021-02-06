@@ -26,8 +26,11 @@ public class NeuralNetwork {
     private int maxIterations = Integer.MAX_VALUE;
     private int batchSize = 1;
 
-    private final List<NeuralNetworkFitFinishListener> fitFinishListeners = new ArrayList<>();
+    private boolean isBeingFitted;
+
+    private final List<NeuralNetworkFitStartListener> fitStartListeners = new ArrayList<>();
     private final List<NeuralNetworkFitUpdateListener> fitUpdateListeners = new ArrayList<>();
+    private final List<NeuralNetworkFitFinishListener> fitFinishListeners = new ArrayList<>();
 
     public NeuralNetwork(WeightInitializer initializer, ActivationFunction function, int... layers) {
         this.function = function;
@@ -45,9 +48,12 @@ public class NeuralNetwork {
     }
 
     public void fit(Dataset dataset) {
+        isBeingFitted = true;
+        fitStartListeners.forEach(NeuralNetworkFitStartListener::onFitStart);
+
         int i, sampleIndex = 0;
 
-        for (i = 1; i <= maxIterations; i++) {
+        for (i = 1; i <= maxIterations && isBeingFitted; i++) {
             dataset.shuffle();
             resetDeltaWeightsAndBiases();
 
@@ -80,6 +86,7 @@ public class NeuralNetwork {
             if (error <= minAcceptableError) break;
         }
 
+        isBeingFitted = false;
         fitFinishListeners.forEach(NeuralNetworkFitFinishListener::onFitFinish);
     }
 
@@ -117,6 +124,14 @@ public class NeuralNetwork {
         }
 
         return error;
+    }
+
+    public boolean isBeingFitted() {
+        return isBeingFitted;
+    }
+
+    public void stopFitting() {
+        isBeingFitted = false;
     }
 
     private void updateWeightsAndBiases() {
@@ -199,12 +214,12 @@ public class NeuralNetwork {
     //                                       Listeners
     // =============================================================================================
 
-    public void addFitFinishListener(NeuralNetworkFitFinishListener listener) {
-        fitFinishListeners.add(listener);
+    public void addFitStartListener(NeuralNetworkFitStartListener listener) {
+        fitStartListeners.add(listener);
     }
 
-    public void removeFitFinishListener(NeuralNetworkFitFinishListener listener) {
-        fitFinishListeners.remove(listener);
+    public void removeFitStartListener(NeuralNetworkFitStartListener listener) {
+        fitStartListeners.remove(listener);
     }
 
     public void addFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
@@ -213,6 +228,14 @@ public class NeuralNetwork {
 
     public void removeFitUpdateListener(NeuralNetworkFitUpdateListener listener) {
         fitUpdateListeners.remove(listener);
+    }
+
+    public void addFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.add(listener);
+    }
+
+    public void removeFitFinishListener(NeuralNetworkFitFinishListener listener) {
+        fitFinishListeners.remove(listener);
     }
 
     // =============================================================================================
