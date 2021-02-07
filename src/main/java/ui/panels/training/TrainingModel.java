@@ -12,7 +12,6 @@ import ui.panels.ModelListener;
 import util.DatasetLoader;
 import util.UserInputValidator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -97,9 +96,8 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
                 neuralNetwork.addFitFinishListener(this::notifyListenerOnSettingsState);
 
                 neuralNetwork.fit(dataset);
-            } catch (IOException exception) {
-                System.err.println(exception.getMessage());
-                notifyListenerOnSettingsState();
+            } catch (Exception exception) {
+                notifyListenerOnError(exception.getMessage());
             }
         }).start();
     }
@@ -121,6 +119,20 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
         network.setMinAcceptableError(Double.parseDouble(minimumAcceptableError));
 
         return network;
+    }
+
+    private int getBatchSize(Dataset dataset) {
+        if (trainingMethod == TrainingMethod.MINI_BATCH) {
+            var batchSize = Integer.parseInt(miniBatchSize);
+            var maxBatchSize = dataset.size();
+
+            if (batchSize > maxBatchSize)
+                throw new IllegalStateException("Mini-batch size of " + batchSize + " exceeds the maximum value of " + maxBatchSize + ".");
+
+            return batchSize;
+        }
+
+        return trainingMethod == TrainingMethod.STOCHASTIC ? 1 : dataset.size();
     }
 
     public void setTrainingMethod(TrainingMethod trainingMethod) {
@@ -212,12 +224,6 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
         return useRandomWeightColors;
     }
 
-    private int getBatchSize(Dataset dataset) {
-        if (trainingMethod == TrainingMethod.STOCHASTIC) return 1;
-        if (trainingMethod == TrainingMethod.MINI_BATCH) return Integer.parseInt(miniBatchSize);
-        return dataset.size();
-    }
-
     private int[] calculateNetworkLayers(Dataset dataset) {
         var inputNeurons = dataset.getInputDimension();
         var outputNeurons = dataset.getOutputDimension();
@@ -265,6 +271,10 @@ public class TrainingModel implements SettingsListener, NeuralNetworkHolder {
                         isEverySettingValid()
                 )
         );
+    }
+
+    private void notifyListenerOnError(String message) {
+        listener.onNextState(new TrainingState.Error(message));
     }
 
     private boolean isMiniBatchSizeValid() {

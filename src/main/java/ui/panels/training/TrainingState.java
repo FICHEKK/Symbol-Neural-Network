@@ -50,4 +50,12 @@ public abstract class TrainingState {
             this.isEverySettingValid = isEverySettingValid;
         }
     }
+
+    public static class Error extends TrainingState {
+        public final String message;
+
+        public Error(String message) {
+            this.message = message;
+        }
+    }
 }

@@ -190,6 +190,9 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         else if (state instanceof TrainingState.TrainButton) {
             renderTrainButton((TrainingState.TrainButton) state);
         }
+        else if (state instanceof TrainingState.Error) {
+            renderError((TrainingState.Error) state);
+        }
     }
 
     private void renderSettings(TrainingState.Settings state) {
@@ -216,5 +219,9 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
             trainNeuralNetworkButton.setText(state.isNetworkBeingFitted ? TRAIN_BUTTON_STOP_TEXT : TRAIN_BUTTON_START_TEXT);
             trainNeuralNetworkButton.setBackground(state.isNetworkBeingFitted ? TRAIN_BUTTON_STOP_COLOR : TRAIN_BUTTON_START_COLOR);
         });
+    }
+
+    private void renderError(TrainingState.Error state) {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, state.message, "An error occurred", JOptionPane.ERROR_MESSAGE));
     }
 }
