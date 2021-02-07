@@ -72,15 +72,31 @@ public final class CurveConverter {
             if (line.startsWith(CONTINUOUS_CURVE_PREFIX)) continue;
 
             try {
-                sample.add(Double.parseDouble(line));
+                var pointCoordinate = Double.parseDouble(line);
+
+                if (Double.isNaN(pointCoordinate)) {
+                    printCorruptMessage(symbolFile, i, line, "NaN is not a valid point coordinate value.");
+                    return null;
+                }
+
+                if (Double.isInfinite(pointCoordinate)) {
+                    printCorruptMessage(symbolFile, i, line, "Point coordinate must be a finite value.");
+                    return null;
+                }
+
+                sample.add(pointCoordinate);
             } catch (NumberFormatException exception) {
-                System.err.println("Corrupted symbol file '" + symbolFile.getAbsolutePath() + "':");
-                System.err.println("Line " + (i + 1) + " \"" + lines.get(i) + "\" not convertible to a double value.");
+                printCorruptMessage(symbolFile, i, line, "Not convertible to a double value.");
                 return null;
             }
         }
 
         return sample.stream().mapToDouble(d -> d).toArray();
+    }
+
+    private static void printCorruptMessage(File corruptedFile, int lineIndex, String line, String corruptionReason) {
+        System.err.println("Corrupted symbol file '" + corruptedFile.getAbsolutePath() + "':");
+        System.err.println("Line " + (lineIndex + 1) + " \"" + line + "\": " + corruptionReason);
     }
 
     private static int countPoints(List<String> lines) {
