@@ -1,5 +1,6 @@
 package ui.panels.dataCollecting;
 
+import ui.Colors;
 import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 import ui.SymbolFileWriter;
@@ -21,9 +22,6 @@ import java.util.List;
 
 public class DataCollectingPanel extends JPanel implements ModelListener<DataCollectingState> {
 
-    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
-    private static final Color VALID_TEXT_COLOR = Color.WHITE;
-    private static final Color INVALID_TEXT_COLOR = Color.RED;
     private static final int PADDING = 10;
     private static final int DELETE_SAMPLE_LIST_LIMIT = 10;
 
@@ -158,7 +156,7 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
 
     private JPanel createSymbolIdentifierPanel() {
         JPanel panel = new JPanel(new GridLayout(0, 2));
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
         panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
         panel.add(symbolIdentifierLabel);
         panel.add(symbolIdentifierField);
@@ -255,7 +253,7 @@ public class DataCollectingPanel extends JPanel implements ModelListener<DataCol
     }
 
     private void renderSymbolIdentifier(DataCollectingState.SymbolIdentifier state) {
-        symbolIdentifierLabel.setForeground(state.isSymbolIdentifierValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+        symbolIdentifierLabel.setForeground(state.isSymbolIdentifierValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
         symbolCanvas.setDrawingEnabled(state.isSymbolIdentifierValid);
     }
 

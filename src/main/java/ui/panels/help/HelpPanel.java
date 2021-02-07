@@ -1,5 +1,7 @@
 package ui.panels.help;
 
+import ui.Colors;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -8,9 +10,7 @@ import java.awt.*;
 
 public class HelpPanel extends JPanel {
 
-    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
-    private static final Color VALID_TEXT_COLOR = Color.WHITE;
-    private static final Color BORDER_COLOR = Color.ORANGE;
+    private static final Color BORDER_COLOR = Colors.GOLD;
     private static final String BORDER_COLOR_HEX = String.format("#%02x%02x%02x", BORDER_COLOR.getRed(), BORDER_COLOR.getGreen(), BORDER_COLOR.getBlue());
     private static final Font BORDER_FONT = new Font("Arial", Font.PLAIN, 14);
 
@@ -18,14 +18,14 @@ public class HelpPanel extends JPanel {
     private static final int SCROLLING_SPEED = 16;
 
     public HelpPanel() {
-        setBackground(PANEL_BACKGROUND_COLOR);
+        setBackground(Colors.BACKGROUND);
         setLayout(new BorderLayout());
         add(createAllSectionsPanel());
     }
 
     private JScrollPane createAllSectionsPanel() {
         var panel = new JPanel(new GridBagLayout());
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
         panel.setBorder(new EmptyBorder(PANEL_PADDING * 2, PANEL_PADDING * 2, PANEL_PADDING * 2, PANEL_PADDING * 2));
 
         var gridBagConstraints = new GridBagConstraints();
@@ -51,7 +51,7 @@ public class HelpPanel extends JPanel {
     private JPanel wrapComponentInTitledBorder(JComponent component, String title) {
         var panel = new JPanel(new BorderLayout());
         panel.add(component, BorderLayout.CENTER);
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         panel.setBorder(BorderFactory.createTitledBorder(
                 new LineBorder(BORDER_COLOR, 1),
@@ -176,7 +176,7 @@ public class HelpPanel extends JPanel {
     private static JPanel createPanel(String... texts) {
         var panel = new JPanel(new GridLayout(0, 1, PANEL_PADDING, PANEL_PADDING / 2));
         panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
         panel.add(createHtmlLabel(texts));
         return panel;
     }
@@ -194,7 +194,7 @@ public class HelpPanel extends JPanel {
 
     private static JLabel createLabel(String text) {
         var label = new JLabel(text);
-        label.setForeground(VALID_TEXT_COLOR);
+        label.setForeground(Colors.VALID_TEXT);
         return label;
     }
 }

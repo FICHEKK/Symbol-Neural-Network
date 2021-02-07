@@ -2,6 +2,7 @@ package ui.panels.training;
 
 import network.NeuralNetwork;
 import network.holder.NeuralNetworkChangeListener;
+import ui.Colors;
 import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 import ui.views.NeuralNetworkView;
@@ -16,11 +17,13 @@ import static ui.views.NeuralNetworkView.WeightsDrawingMode;
 
 public class TrainingPanel extends JPanel implements ModelListener<TrainingState>, NeuralNetworkChangeListener {
 
-    private static final Color VALID_TEXT_COLOR = Color.WHITE;
-    private static final Color INVALID_TEXT_COLOR = Color.RED;
-    private static final Color SETTINGS_PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
     private static final Font ARIAL = new Font("Arial", Font.PLAIN, 14);
     private static final int PADDING = 20;
+
+    private static final String TRAIN_BUTTON_START_TEXT = "Train neural network";
+    private static final String TRAIN_BUTTON_STOP_TEXT = "Stop training neural network";
+    private static final Color TRAIN_BUTTON_START_COLOR = Colors.DARK_BLUE;
+    private static final Color TRAIN_BUTTON_STOP_COLOR = Colors.RED;
 
     private final NeuralNetworkView neuralNetworkView = new NeuralNetworkView();
 
@@ -49,11 +52,6 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
     private final JComboBox<WeightsDrawingMode> weightsDrawingModeComboBox = new JComboBox<>();
 
     private final JLabel trainingStatusLabel = createLabel("");
-
-    private static final String TRAIN_BUTTON_START_TEXT = "Train neural network";
-    private static final Color TRAIN_BUTTON_START_COLOR = new Color(0, 22, 57, 255);
-    private static final String TRAIN_BUTTON_STOP_TEXT = "Stop training neural network";
-    private static final Color TRAIN_BUTTON_STOP_COLOR = Color.RED;
     private final JButton trainNeuralNetworkButton = new JButton();
 
     private final TrainingModel model;
@@ -74,7 +72,7 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         weightsDrawingModeComboBox.setSelectedItem(model.getWeightsDrawingMode());
         neuralNetworkView.setDrawingMode(model.getWeightsDrawingMode());
         neuralNetworkView.setUseRandomColors(model.getUseRandomWeightColors());
-        trainNeuralNetworkButton.setForeground(Color.WHITE);
+        trainNeuralNetworkButton.setForeground(Colors.WHITE);
 
         setLayout(new BorderLayout());
 
@@ -98,7 +96,7 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
     private JPanel createSettingsPanel() {
         JPanel panel = new JPanel(new GridLayout(0, 1, 0, PADDING / 4));
         panel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
-        panel.setBackground(SETTINGS_PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         panel.add(trainingMethodLabel);
         panel.add(trainingMethodComboBox);
@@ -172,7 +170,7 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
     private JLabel createLabel(String text) {
         var label = new JLabel(text);
         label.setFont(ARIAL);
-        label.setForeground(VALID_TEXT_COLOR);
+        label.setForeground(Colors.VALID_TEXT);
         return label;
     }
 
@@ -198,12 +196,12 @@ public class TrainingPanel extends JPanel implements ModelListener<TrainingState
         SwingUtilities.invokeLater(() -> {
             miniBatchSizeLabel.setEnabled(state.isMiniBatchSectionEnabled);
             miniBatchSizeField.setEnabled(state.isMiniBatchSectionEnabled);
-            miniBatchSizeLabel.setForeground(state.isMiniBatchSizeValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-            hiddenLayersDefinitionLabel.setForeground(state.isHiddenLayersDefinitionValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-            learningRateLabel.setForeground(state.isLearningRateValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-            minimumAcceptableErrorLabel.setForeground(state.isMinimumAcceptableErrorValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-            maxIterationsLabel.setForeground(state.isMaximumNumberOfIterationsValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-            additionalPermutationsPerSampleLabel.setForeground(state.isAdditionalPermutationsPerSampleValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+            miniBatchSizeLabel.setForeground(state.isMiniBatchSizeValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+            hiddenLayersDefinitionLabel.setForeground(state.isHiddenLayersDefinitionValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+            learningRateLabel.setForeground(state.isLearningRateValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+            minimumAcceptableErrorLabel.setForeground(state.isMinimumAcceptableErrorValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+            maxIterationsLabel.setForeground(state.isMaximumNumberOfIterationsValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+            additionalPermutationsPerSampleLabel.setForeground(state.isAdditionalPermutationsPerSampleValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
             neuralNetworkView.setUseRandomColors(state.useRandomWeightColors);
         });
     }

@@ -4,6 +4,7 @@ import math.Matrix;
 import math.Vector;
 import network.NeuralNetwork;
 import network.NeuralNetworkFitFinishListener;
+import ui.Colors;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,8 +14,8 @@ public class NeuralNetworkView extends JComponent implements NeuralNetworkFitFin
 
     private static final Random RANDOM = new Random();
 
-    private static final Color BACKGROUND_COLOR = Color.WHITE;
-    private static final Color INPUT_NEURON_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Colors.WHITE;
+    private static final Color INPUT_NEURON_COLOR = Colors.BLACK;
 
     private static final float POSITIVE_WEIGHT_R = 0.156f;
     private static final float POSITIVE_WEIGHT_G = 0.298f;

@@ -1,5 +1,6 @@
 package ui.panels.predicting;
 
+import ui.Colors;
 import ui.panels.ModelListener;
 import ui.views.HistogramView;
 
@@ -11,8 +12,6 @@ import java.awt.event.MouseEvent;
 
 public class PredictingPanel extends JPanel implements ModelListener<PredictingState> {
 
-    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
-    private static final Color PANEL_TEXT_COLOR = Color.WHITE;
     private static final Font ARIAL = new Font("Arial", Font.BOLD, 16);
     private static final int PADDING = 20;
 
@@ -27,7 +26,7 @@ public class PredictingPanel extends JPanel implements ModelListener<PredictingS
         this.model.setListener(this);
 
         setLayout(new BorderLayout());
-        setBackground(PANEL_BACKGROUND_COLOR);
+        setBackground(Colors.BACKGROUND);
 
         add(histogram, BorderLayout.NORTH);
         add(symbolCanvas, BorderLayout.CENTER);
@@ -56,7 +55,7 @@ public class PredictingPanel extends JPanel implements ModelListener<PredictingS
         predictionLabel.setFont(ARIAL);
         predictionLabel.setHorizontalAlignment(JLabel.CENTER);
         predictionLabel.setBorder(new EmptyBorder(PADDING, 0, PADDING, 0));
-        predictionLabel.setForeground(PANEL_TEXT_COLOR);
+        predictionLabel.setForeground(Colors.VALID_TEXT);
     }
 
     @Override

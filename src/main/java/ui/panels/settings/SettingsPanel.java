@@ -1,5 +1,6 @@
 package ui.panels.settings;
 
+import ui.Colors;
 import ui.panels.ModelListener;
 import ui.SimpleDocumentListener;
 
@@ -13,10 +14,7 @@ import java.awt.event.ItemEvent;
 
 public class SettingsPanel extends JPanel implements ModelListener<SettingsState> {
 
-    private static final Color PANEL_BACKGROUND_COLOR = new Color(40, 76, 134, 255);
-    private static final Color VALID_TEXT_COLOR = Color.WHITE;
-    private static final Color INVALID_TEXT_COLOR = Color.RED;
-    private static final Color BORDER_COLOR = Color.ORANGE;
+    private static final Color BORDER_COLOR = Colors.GOLD;
 
     private static final int PANEL_PADDING = 20;
     private static final int WINDOW_PADDING = PANEL_PADDING * 2;
@@ -61,7 +59,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     public SettingsPanel(SettingsModel model) {
         this.model = model;
         model.setListener(this);
-        setBackground(PANEL_BACKGROUND_COLOR);
+        setBackground(Colors.BACKGROUND);
         setBorder(new EmptyBorder(WINDOW_PADDING, WINDOW_PADDING, WINDOW_PADDING, WINDOW_PADDING));
         setLayout(new BorderLayout());
         add(createAllSectionsPanel(), BorderLayout.NORTH);
@@ -80,7 +78,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
 
     private JPanel createAllSectionsPanel() {
         var panel = new JPanel(new GridBagLayout());
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         var gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.insets = new Insets(PANEL_PADDING, 0, PANEL_PADDING, 0);
@@ -102,7 +100,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private JPanel wrapComponentInTitledBorder(JComponent component, String title) {
         var panel = new JPanel(new BorderLayout());
         panel.add(component, BorderLayout.CENTER);
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
         panel.setBorder(BorderFactory.createTitledBorder(BORDER, title, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.TOP, BORDER_FONT, BORDER_COLOR));
         return panel;
     }
@@ -110,7 +108,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private JPanel createDataCollectingPanel() {
         var panel = new JPanel(PANEL_LAYOUT);
         panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         panel.add(numberOfRepresentativePointsLabel);
         panel.add(numberOfRepresentativePointsField);
@@ -154,7 +152,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private JPanel createTrainingPanel() {
         var panel = new JPanel(PANEL_LAYOUT);
         panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         panel.add(symbolLoadDirectoryLabel);
         panel.add(symbolLoadDirectoryField);
@@ -174,7 +172,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     private JPanel createPredictingPanel() {
         var panel = new JPanel(PANEL_LAYOUT);
         panel.setBorder(new EmptyBorder(PANEL_PADDING, PANEL_PADDING, PANEL_PADDING, PANEL_PADDING));
-        panel.setBackground(PANEL_BACKGROUND_COLOR);
+        panel.setBackground(Colors.BACKGROUND);
 
         panel.add(showRepresentativePointsWhilePredictingLabel);
         panel.add(showRepresentativePointsWhilePredictingCheckbox);
@@ -193,7 +191,7 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
 
     private JLabel createLabel(String text) {
         var label = new JLabel(text);
-        label.setForeground(VALID_TEXT_COLOR);
+        label.setForeground(Colors.VALID_TEXT);
         return label;
     }
 
@@ -208,11 +206,11 @@ public class SettingsPanel extends JPanel implements ModelListener<SettingsState
     }
 
     private void renderDataCollectingSection(SettingsState.DataCollectingSection state) {
-        numberOfRepresentativePointsLabel.setForeground(state.isNumberOfRepresentativePointsValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
-        symbolSaveDirectoryLabel.setForeground(state.isSymbolSaveDirectoryValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+        numberOfRepresentativePointsLabel.setForeground(state.isNumberOfRepresentativePointsValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
+        symbolSaveDirectoryLabel.setForeground(state.isSymbolSaveDirectoryValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
     }
 
     private void renderTrainingSection(SettingsState.TrainingSection state) {
-        symbolLoadDirectoryLabel.setForeground(state.isSymbolLoadDirectoryValid ? VALID_TEXT_COLOR : INVALID_TEXT_COLOR);
+        symbolLoadDirectoryLabel.setForeground(state.isSymbolLoadDirectoryValid ? Colors.VALID_TEXT : Colors.INVALID_TEXT);
     }
 }

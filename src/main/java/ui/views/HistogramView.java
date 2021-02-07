@@ -1,14 +1,18 @@
 package ui.views;
 
+import ui.Colors;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class HistogramView extends JComponent {
 
     private static final int HEIGHT = 64;
-    private static final Color BAR_COLOR = new Color(184, 76, 0, 255);
-    private static final Color TEXT_COLOR = Color.BLACK;
-    private static final Color BACKGROUND_COLOR = new Color(0xF3F3F3);
+
+    private static final Color BAR_COLOR = Colors.ORANGE;
+    private static final Color TEXT_COLOR = Colors.BLACK;
+    private static final Color BACKGROUND_COLOR = Colors.TINTED_WHITE;
+
     private String[] identifiers;
     private double[] prediction;
 

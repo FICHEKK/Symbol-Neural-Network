@@ -1,6 +1,7 @@
 package ui.views;
 
 import structures.Point;
+import ui.Colors;
 import util.ColorUtils;
 import util.CurveMeter;
 import util.CurvePainter;
@@ -13,15 +14,15 @@ import java.util.stream.Collectors;
 
 public class SymbolView extends JComponent {
 
-    private static final Color SYMBOL_COLOR_START = Color.MAGENTA;
-    private static final Color SYMBOL_COLOR_END = Color.BLUE;
+    private static final Color SYMBOL_COLOR_START = Colors.MAGENTA;
+    private static final Color SYMBOL_COLOR_END = Colors.BLUE;
     private static final BasicStroke SYMBOL_STROKE = new BasicStroke(2f);
 
-    private static final Color REPRESENTATIVE_POINT_COLOR = new Color(41, 0, 55, 255);
+    private static final Color REPRESENTATIVE_POINT_COLOR = Colors.DARK_MAGENTA;
     private static final BasicStroke REPRESENTATIVE_POINT_STROKE = new BasicStroke(0f);
     private static final int REPRESENTATIVE_POINT_RADIUS = 2;
 
-    private static final Color CONTINUOUS_CURVE_FIRST_POINT_TEXT_COLOR = Color.BLACK;
+    private static final Color CONTINUOUS_CURVE_FIRST_POINT_TEXT_COLOR = Colors.BLACK;
     private static final int COLOR_EXPLANATION_LINE_COUNT = 30;
     private static final float WINDOW_PADDING = 0.1f;
 

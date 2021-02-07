@@ -1,6 +1,7 @@
 package ui.symbolCanvas;
 
 import structures.Point;
+import ui.Colors;
 import util.CurvePainter;
 import util.CurveSampler;
 
@@ -16,12 +17,12 @@ public class SymbolCanvas extends JComponent {
     private static final float REPRESENTATIVE_POINT_STROKE_WIDTH = 2;
     private static final int REPRESENTATIVE_POINT_RADIUS = 4;
 
-    private static final Color BACKGROUND_COLOR_ENABLED = Color.WHITE;
-    private static final Color BACKGROUND_COLOR_DISABLED = new Color(0xE7E9EF);
-    private static final Color SYMBOL_COLOR_WHILE_DRAWING = Color.BLACK;
-    private static final Color SYMBOL_COLOR_AFTER_DRAWING = new Color(150, 0, 116, 255);
-    private static final Color REPRESENTATIVE_SYMBOL_COLOR = Color.BLUE;
-    private static final Color REPRESENTATIVE_POINT_COLOR = new Color(40, 76, 134, 255);
+    private static final Color BACKGROUND_COLOR_ENABLED = Colors.WHITE;
+    private static final Color BACKGROUND_COLOR_DISABLED = Colors.TINTED_WHITE;
+    private static final Color SYMBOL_COLOR_WHILE_DRAWING = Colors.BLACK;
+    private static final Color SYMBOL_COLOR_AFTER_DRAWING = Colors.MAGENTA;
+    private static final Color REPRESENTATIVE_SYMBOL_COLOR = Colors.DARK_BLUE;
+    private static final Color REPRESENTATIVE_POINT_COLOR = Colors.BLUE;
 
     private final List<SymbolCanvasUpdateListener> updateListeners = new ArrayList<>();
     private final List<SymbolCanvasFinishListener> finishListeners = new ArrayList<>();
