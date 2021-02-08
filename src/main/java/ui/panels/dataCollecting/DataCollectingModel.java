@@ -12,6 +12,7 @@ import util.FileUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
 
         notifyAllSymbolsTableChanged();
         notifySingleSymbolTableChanged(null, null);
-        notifySymbolViewPartedCurveChanged(null);
+        notifySymbolViewPartedCurveChanged(Collections.emptyList());
     }
 
     public void deleteSamples(List<String> samples) throws IOException {
@@ -61,7 +62,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
 
         notifyAllSymbolsTableChanged();
         updateSingleSymbolTable();
-        notifySymbolViewPartedCurveChanged(null);
+        notifySymbolViewPartedCurveChanged(Collections.emptyList());
     }
 
     // =============================================================================================
@@ -105,8 +106,7 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
             var numberOfRepresentativePoints = settings.getIntProperty(Settings.NUMBER_OF_REPRESENTATIVE_POINTS);
             var path = Paths.get(loadDirectory, String.valueOf(numberOfRepresentativePoints), selectedSymbolIdentifier, selectedSample);
             notifySymbolViewPartedCurveChanged(CurveConverter.deserializePartedCurve(Files.readAllLines(path)));
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (Exception exception) {
             notifySymbolViewPartedCurveChanged(null);
         }
     }
@@ -143,13 +143,13 @@ public class DataCollectingModel implements SettingsListener, SymbolCanvasFinish
                 notifySymbolCanvasChanged();
                 notifyAllSymbolsTableChanged();
                 notifySingleSymbolTableChanged(null, null);
-                notifySymbolViewPartedCurveChanged(null);
+                notifySymbolViewPartedCurveChanged(Collections.emptyList());
                 break;
 
             case Settings.SYMBOL_LOAD_DIRECTORY:
                 notifyAllSymbolsTableChanged();
                 notifySingleSymbolTableChanged(null, null);
-                notifySymbolViewPartedCurveChanged(null);
+                notifySymbolViewPartedCurveChanged(Collections.emptyList());
                 break;
 
             case Settings.SHOW_CONTINUOUS_CURVE_INDEX_IN_SYMBOL_VIEW:

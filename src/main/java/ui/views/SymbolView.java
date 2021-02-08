@@ -42,6 +42,11 @@ public class SymbolView extends JComponent {
             animationWorker.cancel(true);
         }
 
+        if (normalizedPartedCurve == null || normalizedPartedCurve.isEmpty()) {
+            setSymbol(normalizedPartedCurve);
+            return;
+        }
+
         animationWorker = new SymbolAnimationWorker(this, normalizedPartedCurve);
         animationWorker.execute();
     }
@@ -60,7 +65,12 @@ public class SymbolView extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (normalizedPartedCurve == null || normalizedPartedCurve.isEmpty()) return;
+        if (normalizedPartedCurve == null) {
+            paintCouldNotLoadMessage((Graphics2D) g);
+            return;
+        }
+
+        if (normalizedPartedCurve.isEmpty()) return;
         var g2d = (Graphics2D) g;
 
         var totalPointCount = getTotalPointCount();
@@ -92,6 +102,25 @@ public class SymbolView extends JComponent {
 
         paintColorExplanationLine(g2d);
         paintColorExplanationText(g2d);
+    }
+
+    private void paintCouldNotLoadMessage(Graphics2D g) {
+        final var text = List.of(
+                "Could not load symbol. Possible reasons:",
+                "- Corrupted file.",
+                "- Outdated file format.",
+                "- Error while reading the file."
+        );
+
+        final var x = getWidth() / 2 - g.getFontMetrics().stringWidth(text.get(0)) / 2;
+        final var y = getHeight() / 2 - (g.getFontMetrics().getHeight() * text.size()) / 2;
+        drawString(g, text, x, y);
+    }
+
+    private void drawString(Graphics g, List<String> lines, int x, int y) {
+        for (var line : lines) {
+            g.drawString(line, x, y += g.getFontMetrics().getHeight());
+        }
     }
 
     private void paintContinuousCurveIndex(Graphics2D g, List<Point> continuousCurve, int index) {
@@ -216,6 +245,7 @@ public class SymbolView extends JComponent {
 
         @Override
         protected void process(List<List<List<Point>>> chunks) {
+            if (isDone()) return;
             var lastCurve = chunks.get(chunks.size() - 1);
             symbolView.setSymbol(lastCurve);
         }

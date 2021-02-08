@@ -43,8 +43,8 @@ public final class CurveConverter {
             }
             else {
                 var lastCurve = partedCurve.get(partedCurve.size() - 1);
-                var x = Double.parseDouble(lines.get(index++));
-                var y = Double.parseDouble(lines.get(index++));
+                var x = tryParsePointCoordinate(lines.get(index++));
+                var y = tryParsePointCoordinate(lines.get(index++));
                 lastCurve.add(new Point(x, y));
             }
         }
@@ -72,21 +72,10 @@ public final class CurveConverter {
             if (line.startsWith(CONTINUOUS_CURVE_PREFIX)) continue;
 
             try {
-                var pointCoordinate = Double.parseDouble(line);
-
-                if (Double.isNaN(pointCoordinate)) {
-                    printCorruptMessage(symbolFile, i, line, "NaN is not a valid point coordinate value.");
-                    return null;
-                }
-
-                if (Double.isInfinite(pointCoordinate)) {
-                    printCorruptMessage(symbolFile, i, line, "Point coordinate must be a finite value.");
-                    return null;
-                }
-
-                sample.add(pointCoordinate);
+                sample.add(tryParsePointCoordinate(line));
             } catch (NumberFormatException exception) {
-                printCorruptMessage(symbolFile, i, line, "Not convertible to a double value.");
+                System.err.println("Corrupted symbol file '" + symbolFile.getAbsolutePath() + "':");
+                System.err.println("Line " + (i + 1) + " \"" + line + "\": " + exception.getMessage());
                 return null;
             }
         }
@@ -94,9 +83,16 @@ public final class CurveConverter {
         return sample.stream().mapToDouble(d -> d).toArray();
     }
 
-    private static void printCorruptMessage(File corruptedFile, int lineIndex, String line, String corruptionReason) {
-        System.err.println("Corrupted symbol file '" + corruptedFile.getAbsolutePath() + "':");
-        System.err.println("Line " + (lineIndex + 1) + " \"" + line + "\": " + corruptionReason);
+    private static double tryParsePointCoordinate(String line) {
+        var pointCoordinate = Double.parseDouble(line);
+
+        if (Double.isNaN(pointCoordinate))
+            throw new NumberFormatException("NaN is not a valid point coordinate value.");
+
+        if (Double.isInfinite(pointCoordinate))
+            throw new NumberFormatException("Point coordinate must be a finite value.");
+
+        return pointCoordinate;
     }
 
     private static int countPoints(List<String> lines) {
