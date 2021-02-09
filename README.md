@@ -1,4 +1,4 @@
-# Symbol-Neural-Network
+![](doc/Header-2.png)
 
 # ❓ What is it?
 Symbol Neural Network is an application which allows the user to:
